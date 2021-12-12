@@ -1,5 +1,6 @@
 import open from "open";
 import express from "express";
+import { Server } from "http";
 import { stringify } from "querystring";
 import SpotifyWebApi from "spotify-web-api-node";
 import { generate as generateRandom } from "randomstring";
@@ -8,9 +9,9 @@ import { blue } from "./log.js";
 
 const httpPort = 8888;
 const redirectUri = `http://localhost:${httpPort}/callback/`;
-let server;
+let server: Server;
 
-function getAuthorizaionCode() {
+async function getAuthorizaionCode(): Promise<string> {
   return new Promise((resolve) => {
     // Start the server
     const app = express();
@@ -41,17 +42,15 @@ function getAuthorizaionCode() {
       res.send(
         `<html><body>You may close this window now<script>window.close()</script></body></html>`
       );
-      resolve(code);
+      resolve(code as string);
     });
   });
 }
 
 /**
  * Setup an instance from Spotify Web API by setting up the credentials, authenticating and authorizing
- *
- * @returns SpotifyWebApi instance
  */
-export async function createAuthorizedInstance() {
+export async function createAuthorizedInstance(): Promise<SpotifyWebApi> {
   const api = new SpotifyWebApi({
     clientId: process.env.CLIENT_ID,
     clientSecret: process.env.CLIENT_SECRET,

@@ -1,7 +1,11 @@
 import { createAuthorizedInstance } from "../utils/spotify-web-api.js";
 import { green, red } from "../utils/log.js";
 
-export async function createNewFlow(name, { shows }) {
+type Opts = {
+  shows: string[];
+};
+
+export async function createNewFlow(name: string, { shows }: Opts) {
   const api = await createAuthorizedInstance();
   let data;
 

@@ -4,12 +4,14 @@
   "description": "CLI for creating and updating a Podcast Flow",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc"
   },
   "type": "module",
   "author": "Sergio Avalos <sergio.avalos@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "@types/spotify-web-api-node": "^5.0.4",
     "chalk": "^5.0.0",
     "commander": "^8.3.0",
     "conf": "^10.1.1",
@@ -20,6 +22,11 @@
     "spotify-web-api-node": "^5.0.2"
   },
   "bin": {
-    "podcast-flows-cli": "index.js"
+    "podcast-flows-cli": "bin/index.js"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.13",
+    "@types/randomstring": "^1.1.8",
+    "typescript": "^4.5.3"
   }
 }

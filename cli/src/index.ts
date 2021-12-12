@@ -1,11 +1,11 @@
 #! /usr/bin/env node
 
-import dotenv from "dotenv";
+import { config } from "dotenv";
 import { program, Option } from "commander";
 
-import { createNewFlow } from "./src/commands/index.js";
+import { createNewFlow } from "./commands/index.js";
 
-dotenv.config();
+config();
 
 const showUrisOption = new Option(
   "-s, --shows <showUris...>",
@@ -24,35 +24,35 @@ program
   .addOption(showUrisOption)
   .addOption(intervalOption)
   .action(createNewFlow);
-
+/*
 program
   .command("add-shows <id>")
   .description("Adds new a given list shows to a podcast flow")
   .addOption(showUrisOption)
-  .action(/*addFlow*/);
+  .action(addFlow);
 
 program
   .command("remove-shows <id>")
   .description("Removes a give list of shows to a podcast flow")
   .addOption(showUrisOption)
-  .action(/*removeFlow*/);
+  .action(removeFlow);
 
 program
   .command("set-interval <id>")
   .description("Set a new time interval for renewing the flow.")
   .addOption(intervalOption)
-  .action(/*setInterval*/);
+  .action(setInterval);
 
 program
   .command("list-shows <id>")
   .description("List the shows that a podcast flow is subscribed to")
-  .action(/*listFlow*/);
+  .action(listFlow);
 
 program
   .command("delete <id>")
   .description(
     "Removes a podcast flow\nWARNING: This will remove *PERMANENTLY* the playlist from your library"
   )
-  .action(/*deleteFlow*/);
-
+  .action(deleteFlow);
+*/
 program.parse();
