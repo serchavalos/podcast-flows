@@ -19,7 +19,7 @@ async function getAuthorizaionCode(): Promise<string> {
 
     // Generate the URL and request the user to visit this address
     const state = generateRandom(16);
-    const scope = 'playlist-read-collaborative playlist-modify-public';
+    const scope = 'playlist-read-collaborative playlist-modify-public playlist-modify-private playlist-read-private';
     const loginURI =
       'https://accounts.spotify.com/authorize?' +
       stringify({
