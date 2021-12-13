@@ -1,11 +1,11 @@
-import open from "open";
-import express from "express";
-import { Server } from "http";
-import { stringify } from "querystring";
-import SpotifyWebApi from "spotify-web-api-node";
-import { generate as generateRandom } from "randomstring";
+import open from 'open';
+import express from 'express';
+import { Server } from 'http';
+import { stringify } from 'querystring';
+import SpotifyWebApi from 'spotify-web-api-node';
+import { generate as generateRandom } from 'randomstring';
 
-import { blue } from "./log.js";
+import { blue } from './log.js';
 
 const httpPort = 8888;
 const redirectUri = `http://localhost:${httpPort}/callback/`;
@@ -19,29 +19,27 @@ async function getAuthorizaionCode(): Promise<string> {
 
     // Generate the URL and request the user to visit this address
     const state = generateRandom(16);
-    const scope = "playlist-read-collaborative playlist-modify-public";
+    const scope = 'playlist-read-collaborative playlist-modify-public';
     const loginURI =
-      "https://accounts.spotify.com/authorize?" +
+      'https://accounts.spotify.com/authorize?' +
       stringify({
         client_id: process.env.CLIENT_ID,
         client_secret: process.env.CLIENT_SECRET,
-        response_type: "code",
+        response_type: 'code',
         redirect_uri: redirectUri,
         scope,
         state,
       });
 
     open(loginURI);
-    blue("Waiting for users authorization...");
+    blue('Waiting for users authorization...');
 
     // Wait until we get a response from them
     // Return authorization code
-    app.get("/callback", async function (req, res) {
+    app.get('/callback', async (req, res) => {
       const { code } = req.query;
 
-      res.send(
-        `<html><body>You may close this window now<script>window.close()</script></body></html>`
-      );
+      res.send(`<html><body>You may close this window now<script>window.close()</script></body></html>`);
       resolve(code as string);
     });
   });
@@ -54,7 +52,7 @@ export async function createAuthorizedInstance(): Promise<SpotifyWebApi> {
   const api = new SpotifyWebApi({
     clientId: process.env.CLIENT_ID,
     clientSecret: process.env.CLIENT_SECRET,
-    redirectUri: redirectUri,
+    redirectUri,
   });
 
   const authCode = await getAuthorizaionCode();

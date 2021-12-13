@@ -1,26 +1,23 @@
 #! /usr/bin/env node
 
-import { config } from "dotenv";
-import { program, Option } from "commander";
+import { config } from 'dotenv';
+import { program, Option } from 'commander';
 
-import { createNewFlow } from "./commands/index.js";
+import { createNewFlow } from './commands/index.js';
 
 config();
 
 const showUrisOption = new Option(
-  "-s, --shows <showUris...>",
-  "List of Spotify's URIs of the shows this flow should be subscribed to"
+  '-s, --shows <showUris...>',
+  "List of Spotify's URIs of the shows this flow should be subscribed to",
 ).makeOptionMandatory();
-const intervalOption = new Option(
-  "-t, --interval <interval>",
-  'Choose between "daily",  "weekly" or "monthly"'
-)
-  .choices(["daily", "weekly", "monthly"])
+const intervalOption = new Option('-t, --interval <interval>', 'Choose between "daily",  "weekly" or "monthly"')
+  .choices(['daily', 'weekly', 'monthly'])
   .makeOptionMandatory();
 
 program
-  .command("create <name>")
-  .description("Creates a new podcast flow with a given name")
+  .command('create <name>')
+  .description('Creates a new podcast flow with a given name')
   .addOption(showUrisOption)
   .addOption(intervalOption)
   .action(createNewFlow);

@@ -1,6 +1,7 @@
-import chalk from "chalk";
+import chalk from 'chalk';
 
-const log = (...args: any[]) => console.log(...args, "\n");
+// tslint:disable:no-console
+const log = (...args: any[]) => console.log(...args, '\n');
 
 const red = (...args: any[]) => log(chalk.red.bold(...args));
 const blue = (...args: any[]) => log(chalk.blue.bold(...args));

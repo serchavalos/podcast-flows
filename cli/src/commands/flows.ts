@@ -1,5 +1,5 @@
-import { createAuthorizedInstance } from "../utils/spotify-web-api.js";
-import { green, red } from "../utils/log.js";
+import { createAuthorizedInstance } from '../utils/spotify-web-api.js';
+import { green, red } from '../utils/log.js';
 
 type Opts = {
   shows: string[];
@@ -16,12 +16,12 @@ export async function createNewFlow(name: string, { shows }: Opts) {
     process.exit(1);
   }
 
-  const username = data.body["display_name"];
+  const username = data.body.display_name;
 
   green(
     `Welcone ${username}!\nA new podcast flow called "${name}" and subscribed to ${shows.join(
-      ", "
-    )} has been created for you.`
+      ', ',
+    )} has been created for you.`,
   );
   process.exit(0);
 }
