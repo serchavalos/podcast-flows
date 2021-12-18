@@ -5,7 +5,7 @@ import { stringify } from 'querystring';
 import SpotifyWebApi from 'spotify-web-api-node';
 import { generate as generateRandom } from 'randomstring';
 
-import { blue } from './log.js';
+import { blue, green } from './log.js';
 
 const httpPort = 8888;
 const redirectUri = `http://localhost:${httpPort}/callback/`;
@@ -53,10 +53,29 @@ export async function createAuthorizedInstance(): Promise<SpotifyWebApi> {
     clientSecret: process.env.CLIENT_SECRET,
     redirectUri,
   });
+  const savedCredentials = {
+    access_token: process.env.ACCESS_TOKEN,
+    refresh_token: process.env.REFRESH_TOKEN,
+  };
 
-  const authCode = await getAuthorizaionCode();
-  const { body: credentials } = await api.authorizationCodeGrant(authCode);
+  let credentials;
+
+  if (savedCredentials.access_token && savedCredentials.refresh_token) {
+    api.setAccessToken(savedCredentials.access_token);
+    api.setRefreshToken(savedCredentials.refresh_token);
+    const response = await api.refreshAccessToken();
+    credentials = response.body;
+  } else {
+    const authCode = await getAuthorizaionCode();
+    const response = await api.authorizationCodeGrant(authCode);
+    credentials = response.body;
+    green(`New tokens received!`);
+    green(`You may save them in your .env file as:`);
+    green(`\`\`\`\nACCESS_TOKEN=${credentials.access_token}\nREFRESH_TOKEN=${credentials.refresh_token}\n\`\`\``);
+  }
+
   api.setAccessToken(credentials.access_token);
+  api.setRefreshToken(credentials.refresh_token || '');
 
   return api;
 }

@@ -65,9 +65,9 @@ export class FlowActions {
 
     // 3. Fetch all the episodes of the shows within a given date
     const showIds = flow.showUris.map((showUri) => showUri.split(':').pop() as string);
-    const responses = await Promise.all(showIds.map((showId) => this.spotifyWebApi.getShowEpisodes(showId)));
+    const showEpisodesResponse = await Promise.all(showIds.map((showId) => this.spotifyWebApi.getShowEpisodes(showId)));
     const dateLimit = getDateLimitByInterval(flow.interval, new Date(2021, 11, 18));
-    const episodes = responses.reduce((acc: SpotifyApi.EpisodeObjectSimplified[], response) => {
+    const episodes = showEpisodesResponse.reduce((acc: SpotifyApi.EpisodeObjectSimplified[], response) => {
       return [...acc, ...response.body.items];
     }, []);
     const selectedEpisodesUris = episodes.reduce((acc: string[], episode: SpotifyApi.EpisodeObjectSimplified) => {
@@ -79,8 +79,12 @@ export class FlowActions {
     }, []);
 
     // 4. Remove the current episodes of the playlist
+    const playlistTracksResponse = await this.spotifyWebApi.getPlaylistTracks(playlistId);
+    const playlistTracks = playlistTracksResponse.body.items.map(({ track }) => ({ uri: track.uri }));
 
-    // 5. Add to the playlists the next episodes
-    await this.spotifyWebApi.addTracksToPlaylist(playlistId, selectedEpisodesUris);
+    await Promise.all([
+      this.spotifyWebApi.removeTracksFromPlaylist(playlistId, playlistTracks),
+      this.spotifyWebApi.addTracksToPlaylist(playlistId, selectedEpisodesUris),
+    ]);
   }
 }
