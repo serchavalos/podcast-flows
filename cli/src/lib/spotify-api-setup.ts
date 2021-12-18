@@ -1,6 +1,6 @@
 import open from 'open';
 import express from 'express';
-import { Server } from 'http';
+
 import { stringify } from 'querystring';
 import SpotifyWebApi from 'spotify-web-api-node';
 import { generate as generateRandom } from 'randomstring';
@@ -9,13 +9,12 @@ import { blue } from './log.js';
 
 const httpPort = 8888;
 const redirectUri = `http://localhost:${httpPort}/callback/`;
-let server: Server;
 
 async function getAuthorizaionCode(): Promise<string> {
   return new Promise((resolve) => {
     // Start the server
     const app = express();
-    server = app.listen(httpPort);
+    const erver = app.listen(httpPort);
 
     // Generate the URL and request the user to visit this address
     const state = generateRandom(16);
@@ -56,8 +55,8 @@ export async function createAuthorizedInstance(): Promise<SpotifyWebApi> {
   });
 
   const authCode = await getAuthorizaionCode();
-  const credentials = await api.authorizationCodeGrant(authCode);
-  api.setAccessToken(credentials.body.access_token);
+  const { body: credentials } = await api.authorizationCodeGrant(authCode);
+  api.setAccessToken(credentials.access_token);
 
   return api;
 }

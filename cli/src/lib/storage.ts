@@ -17,6 +17,12 @@ export class Storage {
     return podcastFlows.find((flow) => flow.name === name) || null;
   }
 
+  findFlowById(flowId: string): null | Flow {
+    const playlistUri = `spotify:playlist:${flowId}`;
+    const podcastFlows = this.conf.get(this.STORAGE_KEY) || [];
+    return podcastFlows.find((flow) => flow.playlistUri === playlistUri) || null;
+  }
+
   persist(flow: Flow): void {
     const podcastFlows = this.conf.get(this.STORAGE_KEY) || [];
     podcastFlows.push(flow);
