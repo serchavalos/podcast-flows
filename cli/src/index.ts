@@ -3,67 +3,52 @@
 import { config } from 'dotenv';
 import { program, Option } from 'commander';
 
-import { FlowActions } from './lib/flow-actions.js';
-import { Storage } from './lib/storage.js';
 import { createAuthorizedInstance } from './lib/spotify-api-setup.js';
-
-config();
+import { FlowController } from './lib/flows/controller.js';
+import { Application } from './app.js';
+import { Opts } from './types.js';
 
 setImmediate(async () => {
-  const storage = new Storage();
-  const spotifyWebApi = await createAuthorizedInstance();
-  const actions = new FlowActions(spotifyWebApi, storage);
+  config();
 
-  const showIdsOption = new Option(
-    '-s, --showIds <showIds...>',
-    "List of Spotify's URIs of the shows this flow should be subscribed to",
-  ).makeOptionMandatory();
-  const intervalOption = new Option('-t, --interval <interval>', 'Choose between "daily", "weekly" or "monthly"')
-    .choices(['daily', 'weekly', 'monthly'])
-    .makeOptionMandatory();
+  const spotifyWebApi = await createAuthorizedInstance();
+  const flowController = new FlowController(spotifyWebApi);
+  const app = new Application(flowController);
 
   program
     .command('create <name>')
     .description('Creates a new podcast flow with a given name')
-    .addOption(showIdsOption)
-    .addOption(intervalOption)
-    .action((name, opts) => actions.create(name, opts));
+    .addOption(
+      new Option(
+        '-s, --showIds <showIds...>',
+        "List of Spotify's URIs of the shows this flow should be subscribed to",
+      ).makeOptionMandatory(),
+    )
+    .addOption(
+      new Option('-t, --interval <interval>', 'Choose between "daily", "weekly" or "monthly"')
+        .choices(['daily', 'weekly', 'monthly'])
+        .makeOptionMandatory(),
+    )
+    .action((name: string, opts: Opts) => app.createFlow(name, opts));
 
   program
-    .command('renew <playlistId>')
-    .description('Update the episodes of the playlist of a given Flow')
-    .action((playlistId) => actions.renew(playlistId));
+    .command('renew <id>')
+    .description('Renews the content of a podcast flow')
+    .action((flowId: string) => app.renewFlow(flowId));
 
-  /*
-    program
-    .command("add-shows <id>")
-    .description("Adds new a given list shows to a podcast flow")
-    .addOption(showIdsOption)
-    .action(addFlow);
-
-    program
-    .command("remove-shows <id>")
-    .description("Removes a give list of shows to a podcast flow")
-    .addOption(showIdsOption)
-    .action(removeFlow);
-
-    program
-    .command("set-interval <id>")
-    .description("Set a new time interval for renewing the flow.")
-    .addOption(intervalOption)
-    .action(setInterval);
-
-    program
-    .command("list-shows <id>")
-    .description("List the shows that a podcast flow is subscribed to")
-    .action(listFlow);
-
-    program
-    .command("delete <id>")
+  program
+    .command('delete <id>')
     .description(
-      "Removes a podcast flow\nWARNING: This will remove *PERMANENTLY* the playlist from your library"
-      )
-      .action(deleteFlow);
-      */
+      'Removes a podcast flow\n' +
+        'This will only remove the functionality of refreshing your playlist with the content of the shows\n' +
+        'you selected but you can still recover the playlist by visiting https://www.spotify.com/se/account/recover-playlists/',
+    )
+    .action((flowId: string) => app.deleteFlow(flowId));
+
+  program
+    .command('run-scheduler')
+    .description('Run the scheduler to update the flows according to their time intervals')
+    .action(() => app.runScheduler());
+
   program.parse();
 });

@@ -1,5 +1,5 @@
 import isEqual from 'date-fns/isEqual';
-import { getDateLimitByInterval } from './flow-utils';
+import { getDateLimitByInterval } from './utils';
 
 describe('getDateLimitByInterval', () => {
   test('getDateLimitByInterval provides the right value of the interal "daily', () => {
