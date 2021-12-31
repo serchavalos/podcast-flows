@@ -1,48 +1,46 @@
 import Conf from 'conf';
 
-import { Flow } from './types';
+import { DataAccess, Flow } from './types';
 
 export class FlowStorage {
-  // `conf` is just a quick way to save data locally. Ideally,
-  // we should use Redis or any other serious storage.
-  private STORAGE_KEY = 'podcast-flows';
-  private conf: Conf<Record<string, Flow[]>>;
-
-  constructor() {
-    this.conf = new Conf<Record<string, Flow[]>>();
-  }
+  constructor(private dataAccess: DataAccess) {}
 
   findFlowByName(name: string): null | Flow {
-    const podcastFlows = this.conf.get(this.STORAGE_KEY) || [];
+    const podcastFlows = this.dataAccess.get() || [];
     return podcastFlows.find((flow) => flow.name === name) || null;
   }
 
   findFlowById(flowId: string): null | Flow {
-    const podcastFlows = this.conf.get(this.STORAGE_KEY) || [];
+    const podcastFlows = this.dataAccess.get() || [];
     return podcastFlows.find((flow) => flow.playlistId === flowId) || null;
   }
 
   deleteFlowById(flowId: string): void {
-    const flows = this.conf.get(this.STORAGE_KEY) || [];
+    const flows = this.dataAccess.get() || [];
     const filteredFlows = flows.filter(({ playlistId }) => playlistId !== flowId);
     if (flows.length === filteredFlows.length) {
       throw new Error('Flow not found');
     }
-    this.conf.set(this.STORAGE_KEY, filteredFlows);
+    this.dataAccess.set(filteredFlows);
   }
 
   getAllFlows(): Flow[] {
-    return this.conf.get(this.STORAGE_KEY) || [];
+    return this.dataAccess.get() || [];
+  }
+
+  getFlowsByUserId(userId: string): Flow[] {
+    const flows = this.getAllFlows();
+    return flows.filter((flow) => flow.userId === userId);
   }
 
   persist(flow: Flow): void {
-    const podcastFlows = this.conf.get(this.STORAGE_KEY) || [];
+    const podcastFlows = this.dataAccess.get() || [];
     const index = podcastFlows.findIndex((f) => f.playlistId === flow.playlistId);
     if (index > -1) {
       podcastFlows[index] = flow;
     } else {
       podcastFlows.push(flow);
     }
-    this.conf.set(this.STORAGE_KEY, podcastFlows);
+    this.dataAccess.set(podcastFlows);
   }
 }

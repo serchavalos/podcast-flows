@@ -1,6 +1,7 @@
 import { isAfter } from 'date-fns';
 import SpotifyWebApi from 'spotify-web-api-node';
 
+// TODO Rename this to SimplifiedSpotifyApi or something like that
 export class FlowSpotifyApi {
   constructor(private client: SpotifyWebApi) {}
 

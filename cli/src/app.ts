@@ -1,81 +1,117 @@
-import cron from 'node-cron';
-
-import { FlowController } from './lib/flows/controller';
-import { Flow } from './lib/flows/types';
-import { blue, green, red, yellow } from './lib/log.js';
-import { sleepFor } from './lib/utils.js';
+import { Config } from './lib/config.js';
+import { FlowCollection } from './lib/flows/collection.js';
+import { blue, green, red } from './lib/log.js';
 import { Opts } from './types.js';
+import { initializeClientWithSavedCredentials, registerNewUser, UserId } from './lib/spotify-api-setup.js';
+import SpotifyWebApi from 'spotify-web-api-node';
+import { sleepFor } from './lib/utils.js';
+import { Flow } from './lib/flows/types.js';
 
 export class Application {
-  constructor(private flowController: FlowController) {}
+  private config: Config;
+
+  constructor() {
+    this.config = new Config();
+  }
+
+  async login(): Promise<void> {
+    try {
+      blue('Waiting for users authorization...');
+
+      const [userId, credentials] = await registerNewUser();
+      this.config.setCurrentUser(userId);
+      this.config.saveCredentials(userId, credentials);
+
+      green('Congratulations! Now you may proceed creating your first flow');
+      process.exit(0);
+    } catch (err) {
+      red(`Yikes! Something went wrong: ${err}`);
+      process.exit(1);
+    }
+  }
 
   async createFlow(flowName: string, { showIds, interval }: Opts): Promise<void> {
+    const collection = await this.getFlowCollectionOfCurrentUser();
+
     try {
-      const flowId = await this.flowController.createFlow(flowName, showIds, interval);
+      const flowId = await collection.addNew(flowName, showIds, interval);
       green(
         `Contragulations!\nYour flow has been succesfully created.\nCheck it out by visiting https://open.spotify.com/playlist/${flowId}`,
       );
       process.exit(0);
     } catch (err) {
-      red(`Oppps.... Something went wrong: ${err}`);
+      red(`Oppps... something went wrong: ${err}`);
       process.exit(1);
     }
   }
 
   async deleteFlow(flowId: string): Promise<void> {
     try {
-      await this.flowController.delete(flowId);
+      const collection = await this.getFlowCollectionOfCurrentUser();
+      await collection.delete(flowId);
       green(
         `The flow ID ${flowId} has been deleted.\nYou can still recover the playlist at https://www.spotify.com/se/account/recover-playlists/`,
       );
       process.exit(0);
     } catch (err) {
-      red(`Oppps.... Something went wrong: ${err}.`);
+      red(`Oppps... something went wrong: ${err}.`);
       process.exit(1);
     }
   }
 
-  async renewFlow(flowId: string): Promise<void> {
+  async renew(flowId: string): Promise<void> {
     try {
-      await this.flowController.renew(flowId);
+      const collection = await this.getFlowCollectionOfCurrentUser();
+      await collection.renew(flowId);
       green(
         `The flow ID ${flowId} has been renewed.\nCheck it out by visiting https://open.spotify.com/playlist/${flowId}`,
       );
       process.exit(0);
     } catch (err) {
-      red(`Oppps.... Something went wrong: ${err}.`);
+      red(`Oppps... something went wrong: ${err}.`);
       process.exit(1);
     }
   }
 
-  runScheduler(): void {
-    const flows = this.flowController.getAllFlows();
-    if (!flows.length) {
-      yellow('No flows have been registered yet');
-      process.exit(0);
+  async renewAll(): Promise<void> {
+    const collection = await this.getFlowCollectionOfCurrentUser();
+    const flows = collection.getAll();
+    // a `for` loop is used here to be able to make the requests to Spotify's Web API sequentially
+    // If these calls are made in parallel, this client might be blocked by this service for trying to DDoS
+    for (let index = 0, limit = flows.length; index < limit; index++) {
+      const flowId = flows[index].playlistId;
+      try {
+        await collection.renew(flowId);
+        green(
+          `The flow ID ${flowId} has been renewed.\nCheck it out by visiting https://open.spotify.com/playlist/${flowId}`,
+        );
+        sleepFor(1);
+      } catch (err) {
+        red(`Oppps... something went wrong:\n${err}.\n Skipping flow: ${flowId}`);
+      }
+    }
+    process.exit(0);
+  }
+
+  private async setupSpotifyClient(): Promise<[UserId, SpotifyWebApi]> {
+    const userId = this.config.getCurrentUserId();
+    const credentials = this.config.getCredentialsByUserId(userId || '');
+
+    if (!userId || !credentials) {
+      red(`You need to login first. Run the command "podcast-flows-cli login`);
+      process.exit(1);
     }
 
-    blue('Scheduler has been started');
+    const client = await initializeClientWithSavedCredentials(credentials);
+    return [userId, client];
+  }
 
-    cron.schedule('0 4 * * *', async () => {
-      const currentDate = new Date();
-      blue(`Staring renewal on ${currentDate.toLocaleDateString()} at ${currentDate.toLocaleTimeString()}`);
-
-      for (let index = 0, flow: Flow; index < flows.length; index++) {
-        flow = flows[index];
-        const flowId = flow.playlistId;
-        const flowName = flow.name;
-
-        try {
-          blue(`Renew flow ${flowId} called "${flowName}"...`);
-          await this.flowController.renew(flowId);
-          green('...completed!');
-        } catch (err) {
-          red(`... dang, something went wrong: ${err}`);
-        }
-      }
-
-      sleepFor(10); // Avoid spamming Spotify's Web API
-    });
+  private async getFlowCollectionOfCurrentUser(): Promise<FlowCollection> {
+    const dataAccess = {
+      get: () => this.config.getFlows(),
+      set: (f: Flow[]) => this.config.setFlows(f),
+    };
+    const [userId, client] = await this.setupSpotifyClient();
+    return new FlowCollection(userId, client, dataAccess);
   }
 }

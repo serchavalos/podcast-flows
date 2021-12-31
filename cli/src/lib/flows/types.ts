@@ -14,3 +14,8 @@ export type Flow = {
   // with newest episodes
   lastUpdateAt: null | number;
 };
+
+export interface DataAccess {
+  get(): Flow[];
+  set(flows: Flow[]): void;
+}

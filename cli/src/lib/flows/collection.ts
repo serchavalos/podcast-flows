@@ -3,21 +3,21 @@ import SpotifyWebApi from 'spotify-web-api-node';
 
 import { buildFlowMetadata, getDateLimitByInterval } from './utils.js';
 import { FlowStorage } from './storage.js';
-import { Flow, TimeInterval } from './types.js';
+import { DataAccess, Flow, TimeInterval } from './types.js';
 import { FlowSpotifyApi } from './spotify-api.js';
 
-export class FlowController {
+export class FlowCollection {
+  private userId: string;
   private spotifyApi: FlowSpotifyApi;
   private storage: FlowStorage;
 
-  constructor(private client: SpotifyWebApi) {
-    this.storage = new FlowStorage();
+  constructor(userId: string, client: SpotifyWebApi, dataAccess: DataAccess) {
+    this.userId = userId;
+    this.storage = new FlowStorage(dataAccess);
     this.spotifyApi = new FlowSpotifyApi(client);
   }
 
-  async createFlow(flowName: string, showIds: string[], interval: TimeInterval): Promise<string> {
-    // 1. Are there any flows with this name?
-    //    Yes, then throw an exception
+  async addNew(flowName: string, showIds: string[], interval: TimeInterval): Promise<string> {
     if (this.storage.findFlowByName(flowName) !== null) {
       throw new Error(`There is already a flow with this name "${flowName}". Please choose a different one`);
     }
@@ -47,8 +47,22 @@ export class FlowController {
     return playlistId;
   }
 
+  async delete(flowId: string): Promise<void> {
+    try {
+      this.storage.deleteFlowById(flowId);
+    } catch (err) {
+      throw new Error(`Flow with the playlist Id ${flowId} was not found`);
+    }
+
+    await this.spotifyApi.deletePlaylist(flowId);
+  }
+
+  getAll(): Flow[] {
+    return this.storage.getFlowsByUserId(this.userId);
+  }
+
+  // TODO: Find a better name; `renew` does not make much sense
   async renew(flowId: string): Promise<void> {
-    // Check if the flow Id exist
     const flow = this.storage.findFlowById(flowId);
     if (!flow) {
       throw new Error(`Flow with the playlist Id ${flowId} was not found`);
@@ -62,6 +76,9 @@ export class FlowController {
 
     // Fetch all the episodes of the shows within a given date
     const episodesUris = await this.spotifyApi.getEpisodesUrisFromShowsAfterDate(flow.showIds, dateLimit);
+    if (!episodesUris.length) {
+      throw new Error(`No new content has been published in any of these registered shows: ${flow.showIds.join(', ')}`);
+    }
 
     // 4. Remove the current episodes of the playlist
     await this.spotifyApi.updatePlaylistContent(flow.playlistId, episodesUris);
@@ -73,19 +90,5 @@ export class FlowController {
       modifiedAt: timestamp,
       lastUpdateAt: timestamp,
     });
-  }
-
-  async delete(flowId: string): Promise<void> {
-    try {
-      this.storage.deleteFlowById(flowId);
-    } catch (err) {
-      throw new Error(`Flow with the playlist Id ${flowId} was not found`);
-    }
-
-    await this.spotifyApi.deletePlaylist(flowId);
-  }
-
-  getAllFlows(): Flow[] {
-    return this.storage.getAllFlows();
   }
 }
