@@ -42,7 +42,9 @@ export class FlowSpotifyApi {
 
   async updatePlaylistContent(playlistId: string, episodesUris: string[]): Promise<void> {
     const playlistTracksResponse = await this.client.getPlaylistTracks(playlistId);
-    const playlistTracks = playlistTracksResponse.body.items.map(({ track }) => ({ uri: track.uri }));
+    const playlistTracks = playlistTracksResponse.body.items
+      .filter(({ track }) => !!track)
+      .map(({ track }) => ({ uri: track.uri }));
 
     await Promise.all([
       this.client.removeTracksFromPlaylist(playlistId, playlistTracks),
