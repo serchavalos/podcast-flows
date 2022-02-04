@@ -30,21 +30,22 @@ export class FlowCollection {
       this.spotifyApi.createPlaylist(flowMeta.name, flowMeta.description),
       this.spotifyApi.getUserId(),
     ]);
+    const flowId = playlistId;
 
     // 3. Persists in storage
     const timestamp = new Date().getTime();
     this.storage.persist({
+      id: flowId,
       name: flowName,
       showIds: shows.map(({ id }) => id),
       userId,
-      playlistId,
       interval,
       createdAt: timestamp,
       modifiedAt: timestamp,
       lastUpdateAt: null,
     });
 
-    return playlistId;
+    return flowId;
   }
 
   async delete(flowId: string): Promise<void> {
@@ -81,7 +82,7 @@ export class FlowCollection {
     }
 
     // 4. Remove the current episodes of the playlist
-    await this.spotifyApi.updatePlaylistContent(flow.playlistId, episodesUris);
+    await this.spotifyApi.updatePlaylistContent(flow.id, episodesUris);
 
     // 5. Update the dates on the flow
     const timestamp = new Date().getTime();

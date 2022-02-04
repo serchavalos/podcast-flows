@@ -12,12 +12,12 @@ export class FlowStorage {
 
   findFlowById(flowId: string): null | Flow {
     const podcastFlows = this.dataAccess.get() || [];
-    return podcastFlows.find((flow) => flow.playlistId === flowId) || null;
+    return podcastFlows.find((flow) => flow.id === flowId) || null;
   }
 
   deleteFlowById(flowId: string): void {
     const flows = this.dataAccess.get() || [];
-    const filteredFlows = flows.filter(({ playlistId }) => playlistId !== flowId);
+    const filteredFlows = flows.filter(({ id }) => id !== flowId);
     if (flows.length === filteredFlows.length) {
       throw new Error('Flow not found');
     }
@@ -35,7 +35,7 @@ export class FlowStorage {
 
   persist(flow: Flow): void {
     const podcastFlows = this.dataAccess.get() || [];
-    const index = podcastFlows.findIndex((f) => f.playlistId === flow.playlistId);
+    const index = podcastFlows.findIndex((f) => f.id === flow.id);
     if (index > -1) {
       podcastFlows[index] = flow;
     } else {

@@ -79,7 +79,7 @@ export class Application {
     // a `for` loop is used here to be able to make the requests to Spotify's Web API sequentially
     // If these calls are made in parallel, this client might be blocked by this service for trying to DDoS
     for (let index = 0, limit = flows.length; index < limit; index++) {
-      const flowId = flows[index].playlistId;
+      const flowId = flows[index].id;
       try {
         await collection.renew(flowId);
         green(
