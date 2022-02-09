@@ -13,7 +13,7 @@ export class Config {
   private conf: Conf<ConfigSchema>;
 
   constructor() {
-    this.conf = new Conf<ConfigSchema>();
+    this.conf = new Conf<ConfigSchema>({ projectName: 'podcast-flows-cli' });
   }
 
   public getFlows(): Flow[] {
