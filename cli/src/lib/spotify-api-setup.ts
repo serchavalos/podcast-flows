@@ -4,8 +4,6 @@ import SpotifyWebApi from 'spotify-web-api-node';
 import { stringify } from 'querystring';
 import { generate as generateRandom } from 'randomstring';
 
-import { blue, green } from './log.js';
-
 export type UserId = string;
 export type Credentials = {
   accessToken: string;
