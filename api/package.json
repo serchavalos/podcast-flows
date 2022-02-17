@@ -20,6 +20,7 @@
     "@types/passport": "^1.0.7",
     "@types/passport-http-bearer": "^1.0.37",
     "@types/passport-spotify": "^2.0.1",
+    "@types/spotify-web-api-node": "^5.0.7",
     "@types/sqlite3": "^3.1.8",
     "@types/supertest": "^2.0.11",
     "@typescript-eslint/eslint-plugin": "^5.11.0",
@@ -36,10 +37,13 @@
     "dotenv": "^16.0.0",
     "express": "^4.17.2",
     "morgan": "^1.10.0",
+    "node-ts-cache": "^4.4.0",
+    "node-ts-cache-storage-node-fs": "^4.4.0",
     "passport": "^0.5.2",
     "passport-http-bearer": "^1.0.1",
     "passport-spotify": "^2.0.0",
     "pupeteer": "^0.0.1",
+    "spotify-web-api-node": "^5.0.2",
     "sqlite3": "^4.2.0"
   }
 }

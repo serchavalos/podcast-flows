@@ -1,6 +1,7 @@
 import passport from "passport";
 import { Strategy as SpotifyStrategy } from "passport-spotify";
 
+import { Sessions } from "../storage/sessions";
 import { initDatabase, UsersStorage } from "../storage";
 
 export function getSpotifyPassportMiddleware(callbackURL: string) {
@@ -16,6 +17,9 @@ export function getSpotifyPassportMiddleware(callbackURL: string) {
           const db = initDatabase();
           const storage = new UsersStorage(db);
           storage.addNewUser(accessToken, refreshToken, profile.username);
+
+          const sessions = new Sessions();
+          sessions.add(profile.username, accessToken, refreshToken, expiresIn);
           return done(null);
         });
       }

@@ -13,7 +13,8 @@ export class UsersStorage {
         "CREATE TABLE IF NOT EXISTS users ( \
           accessToken TEXT UNIQUE NOT NULL, \
           refreshToken TEXT UNIQUE NOT NULL, \
-          username TEXT NOT NULL\
+          username TEXT NOT NULL, \
+          createdOn DATETIME DEFAULT CURRENT_TIMESTAMP \
           )"
       );
     });

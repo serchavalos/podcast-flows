@@ -1,22 +1,19 @@
 import passport from "passport";
 
 import { Strategy as BearerStrategy } from "passport-http-bearer";
-
-import { initDatabase, UsersStorage } from "../storage/index";
+import { Sessions } from "../storage/sessions";
 
 export function getBearerPassportMiddleware() {
-  const db = initDatabase();
-  const storage = new UsersStorage(db);
+  const sessions = new Sessions();
 
   passport.use(
     new BearerStrategy(async (token, done) => {
       try {
-        // TODO: Add a check for "users" with expired session
-        const user = await storage.getByAccessToken(token);
-        if (!user) {
+        const session = await sessions.get(token);
+        if (!session) {
           return done(null, false);
         }
-        done(null, user);
+        done(null, session);
       } catch (err) {
         done(err, null);
       }
