@@ -94,5 +94,5 @@ app.get(
     });
   }
 );
-
+// tslint:disable-next-line:no-console
 app.listen(port, () => console.log(`Listening http://${host}:${port}`));

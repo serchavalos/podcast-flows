@@ -2,3 +2,4 @@
 . "$(dirname "$0")/_/husky.sh"
 
 cd cli; npm run format; npm run lint
+cd ../api; npm run format; npm run lint
