@@ -25,11 +25,30 @@ export class UsersStorage {
     refreshToken: string,
     username: string
   ): Promise<void> {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
+      const userExist = await this.doesUsernameExist(username);
+      if (userExist) {
+        resolve();
+      }
       this.db.get(
         "INSERT INTO users (accessToken, refreshToken, username) VALUES (?, ?, ?)",
         [accessToken, refreshToken, username],
         (err) => (err ? reject(err) : resolve())
+      );
+    });
+  }
+
+  async doesUsernameExist(username: string): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      this.db.get(
+        "SELECT count(1) FROM users WHERE username = ?",
+        [username],
+        (err, row) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(!row);
+        }
       );
     });
   }
