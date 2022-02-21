@@ -31,6 +31,33 @@ router.use((req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
+router.get(
+  "/podcast-flows/",
+  async (req: Request, res: PodcastFlowResponse) => {
+    const { controller } = res.locals;
+
+    try {
+      const flows = await controller.getAll();
+      return res.json(flows);
+    } catch (err) {
+      if (!err.statusCode) {
+        return res.json({
+          error: {
+            status: err.code || 400,
+            message: err.message,
+          },
+        });
+      }
+      return res.json({
+        error: {
+          status: err.statusCode,
+          message: err.body.error.message,
+        },
+      });
+    }
+  }
+);
+
 router.post(
   "/podcast-flows/",
   async (req: PodcastFlowRequest, res: PodcastFlowResponse) => {
@@ -44,7 +71,7 @@ router.post(
       if (!err.statusCode) {
         return res.json({
           error: {
-            status: 400,
+            status: err.code || 400,
             message: err.message,
           },
         });

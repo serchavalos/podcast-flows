@@ -26,6 +26,9 @@ export class PodcastFlowController {
     showIds: string[],
     interval: TimeInterval
   ): Promise<string> {
+    if (!flowName || !interval) {
+      throw new Error("Missing required parameters");
+    }
     if (await this.storage.isFlowNameAlreadyRegistered(flowName)) {
       throw new Error(
         `There is already a flow with this name "${flowName}". Please choose a different one`
@@ -57,5 +60,9 @@ export class PodcastFlowController {
 
   async getById(flowId: string): Promise<PodcastFlow | null> {
     return this.storage.getFlowById(flowId);
+  }
+
+  async getAll(): Promise<PodcastFlow[]> {
+    return this.storage.getFlowsByUsername(this.username);
   }
 }

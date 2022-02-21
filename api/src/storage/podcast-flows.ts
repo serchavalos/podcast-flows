@@ -95,6 +95,31 @@ export class PodcastFlowsStorage {
     return !flow ? null : { ...flow, showIds };
   }
 
+  async getFlowsByUsername(username: string): Promise<PodcastFlow[]> {
+    const [rows, showIds] = await Promise.all([
+      this.db.asyncAll(`SELECT * FROM podcast_flows WHERE username = ?`, [
+        username,
+      ]),
+      this.db.asyncAll(
+        `SELECT pfs.*
+      FROM podcast_flows AS pf
+      JOIN podcast_flows_shows AS pfs ON pf.id = pfs.podcastFlowID
+      WHERE pf.username = ?
+      ORDER BY pfs.podcastFlowID`,
+        [username]
+      ),
+    ]);
+    const showIdsDict = showIds.reduce((acc, { podcastFlowID, showID }) => {
+      if (!acc[podcastFlowID]) {
+        acc[podcastFlowID] = [];
+      }
+      acc[podcastFlowID].push(showID);
+      return acc;
+    }, {});
+
+    return rows.map((row) => ({ ...row, showIds: showIdsDict[row.id] || [] }));
+  }
+
   async isFlowNameAlreadyRegistered(name: string): Promise<boolean> {
     const row = await this.db.asyncGet(
       `SELECT count(1) AS count FROM podcast_flows WHERE name = ?`,

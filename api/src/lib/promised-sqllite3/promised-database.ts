@@ -27,4 +27,20 @@ export class PromisedDatabase extends Database {
       );
     });
   }
+
+  asyncAll(sql: string, params = []): Promise<any> {
+    const instance = this;
+    const allFunc = super.all;
+    return new Promise((resolve, reject) => {
+      allFunc.call(
+        instance,
+        sql,
+        params,
+        (err: Error | null, row: RunResult): void => {
+          if (err) return reject(err);
+          return resolve(row);
+        }
+      );
+    });
+  }
 }
