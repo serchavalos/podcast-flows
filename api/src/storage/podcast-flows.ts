@@ -127,4 +127,14 @@ export class PodcastFlowsStorage {
     );
     return row.count > 0;
   }
+
+  async deleteFlowById(flowId: string): Promise<void> {
+    await Promise.all([
+      this.db.asyncRun(`DELETE FROM podcast_flows WHERE id = ?`, [flowId]),
+      this.db.asyncRun(
+        `DELETE FROM podcast_flows_shows WHERE podcastFlowID = ?`,
+        [flowId]
+      ),
+    ]);
+  }
 }

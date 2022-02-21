@@ -65,4 +65,14 @@ export class PodcastFlowController {
   async getAll(): Promise<PodcastFlow[]> {
     return this.storage.getFlowsByUsername(this.username);
   }
+
+  async delete(flowId: string): Promise<void> {
+    try {
+      this.storage.deleteFlowById(flowId);
+    } catch (err) {
+      throw new Error(`Flow with the playlist Id ${flowId} was not found`);
+    }
+
+    await this.spotifyApi.deletePlaylist(flowId);
+  }
 }

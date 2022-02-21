@@ -1,4 +1,4 @@
-import { Router, Request, Response, NextFunction } from "express";
+import { Router, Request, Response, NextFunction, application } from "express";
 import SpotifyWebApi from "spotify-web-api-node";
 import { PodcastFlowController } from "../lib/podcast-flows/controller";
 
@@ -16,7 +16,6 @@ declare global {
   }
 }
 
-type PodcastFlowRequest = Request<{}, {}, PodcastFlow>;
 type PodcastFlowResponse = Response<{}, { controller: PodcastFlowController }>;
 
 const router = Router();
@@ -60,7 +59,7 @@ router.get(
 
 router.post(
   "/podcast-flows/",
-  async (req: PodcastFlowRequest, res: PodcastFlowResponse) => {
+  async (req: Request<{}, {}, PodcastFlow>, res: PodcastFlowResponse) => {
     const { controller } = res.locals;
 
     try {
@@ -95,6 +94,35 @@ router.get(
       const { id } = req.params;
       const flow = await controller.getById(id);
       return res.json(flow);
+    } catch (err) {
+      return res.json({
+        error: {
+          status: err.statusCode,
+          message: err.body.error.message,
+        },
+      });
+    }
+  }
+);
+
+router.delete(
+  "/podcast-flows/:id",
+  async (req: Request, res: PodcastFlowResponse) => {
+    const { controller } = res.locals;
+
+    try {
+      const { id } = req.params;
+      const flow = await controller.getById(id);
+      if (!flow) {
+        return res.json({
+          error: {
+            status: 404,
+            message: "Podcast flow not found",
+          },
+        });
+      }
+      await controller.delete(id);
+      return res.status(200);
     } catch (err) {
       return res.json({
         error: {
