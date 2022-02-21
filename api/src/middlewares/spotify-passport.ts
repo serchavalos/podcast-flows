@@ -19,7 +19,7 @@ export function getSpotifyPassportMiddleware(callbackURL: string) {
           storage.addNewUser(accessToken, refreshToken, profile.username);
 
           const sessions = new Sessions();
-          sessions.add(profile.username, accessToken, refreshToken, expiresIn);
+          sessions.add(profile.username, accessToken, expiresIn);
           return done(null);
         });
       }
@@ -29,7 +29,14 @@ export function getSpotifyPassportMiddleware(callbackURL: string) {
   return {
     initiateSpotifyAuth: () =>
       passport.authenticate("spotify", {
-        scope: ["user-read-email", "user-read-private"],
+        scope: [
+          "user-read-email",
+          "user-read-private",
+          "playlist-read-collaborative",
+          "playlist-modify-public",
+          "playlist-modify-private",
+          "playlist-read-private",
+        ],
       }),
     handleSpotifyCallback: (opts: { failureRedirect: string }) =>
       passport.authenticate("spotify", opts),

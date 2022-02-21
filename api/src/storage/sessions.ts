@@ -4,7 +4,6 @@ import { NodeFsStorage } from "node-ts-cache-storage-node-fs";
 
 type Session = {
   accessToken: string;
-  refreshToken: string;
   username: string;
 };
 
@@ -25,12 +24,11 @@ export class Sessions {
   public add(
     username: string,
     accessToken: string,
-    refreshToken: string,
     expiresIn: number
-  ): void {
-    this.data.setItem(
+  ): Promise<void> {
+    return this.data.setItem(
       accessToken,
-      { accessToken, refreshToken, username },
+      { accessToken, username },
       { ttl: expiresIn, isLazy: false }
     );
   }
