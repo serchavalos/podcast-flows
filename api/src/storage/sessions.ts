@@ -24,7 +24,7 @@ export class Sessions {
   public add(
     username: string,
     accessToken: string,
-    expiresIn: number
+    expiresIn = 3600
   ): Promise<void> {
     return this.data.setItem(
       accessToken,

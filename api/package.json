@@ -40,8 +40,6 @@
     "morgan": "^1.10.0",
     "node-ts-cache": "^4.4.0",
     "node-ts-cache-storage-node-fs": "^4.4.0",
-    "passport": "^0.5.2",
-    "passport-http-bearer": "^1.0.1",
     "passport-spotify": "^2.0.0",
     "pupeteer": "^0.0.1",
     "spotify-web-api-node": "^5.0.2",
