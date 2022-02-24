@@ -48,13 +48,14 @@ export default {
   plugins: [
     replace({
       // stringify the object
-      appConfig: JSON.stringify({
+      process: JSON.stringify({
         env: {
           isProd: production,
           CLIENT_ID: process.env.CLIENT_ID,
           REDIRECT_URI: "http://localhost:8080/",
         },
       }),
+      preventAssignment: true,
     }),
     svelte({
       preprocess: sveltePreprocess({ sourceMap: !production }),

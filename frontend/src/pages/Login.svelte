@@ -9,8 +9,7 @@
 
   const {
     env: { CLIENT_ID, REDIRECT_URI },
-    // @ts-ignore TODO Add `appConfig` as a global variable
-  } = appConfig;
+  } = process;
 
   export function onLoginClick(ev: Event) {
     ev.preventDefault();

@@ -51,8 +51,7 @@ export function generateUrlWithSearchParams(
 export function exchangeToken(code: string): Promise<ResponseToken> {
   const {
     env: { CLIENT_ID, REDIRECT_URI },
-    // @ts-ignore TODO Add `appConfig` as a global variable
-  } = appConfig;
+  } = process;
   const code_verifier = localStorage.getItem("code_verifier");
 
   return fetch("https://accounts.spotify.com/api/token", {
