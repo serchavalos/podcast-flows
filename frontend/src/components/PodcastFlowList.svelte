@@ -1,5 +1,10 @@
 <script lang="ts">
+  import { navigate } from "svelte-routing";
+
   export let accessToken: string;
+  if (!accessToken) {
+    navigate("/login");
+  }
 
   let podcastFlows: Array<Record<string, string>>;
 
@@ -10,7 +15,13 @@
     },
   })
     .then((response) => response.json())
-    .then((data) => (podcastFlows = data));
+    .then((data) => {
+      podcastFlows = data;
+    });
+
+  const navigateToFlowDetails = (id: string) => {
+    navigate(`/flow/${id}`);
+  };
 </script>
 
 {#if podcastFlows}
@@ -22,7 +33,7 @@
     </thead>
     <tbody>
       {#each podcastFlows as flow}
-        <tr>
+        <tr on:click={() => navigateToFlowDetails(flow.id)}>
           <td>{flow.id}</td>
           <td>{flow.name}</td>
           <td>{flow.interval}</td>

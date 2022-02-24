@@ -84,13 +84,14 @@ export class PodcastFlowsStorage {
   }
 
   async getFlowById(flowId: string): Promise<PodcastFlow | null> {
-    const [flow, showIds] = (await Promise.all([
+    const [flow, showIdsDict] = (await Promise.all([
       this.db.asyncGet(`SELECT * FROM podcast_flows WHERE id = ?`, [flowId]),
       this.db.asyncGet(
         `SELECT showID FROM podcast_flows_shows WHERE podcastFlowID = ?`,
         [flowId]
       ),
     ])) as [Omit<PodcastFlow, "showIds"> | null, string[]];
+    const showIds = Object.values(showIdsDict);
 
     return !flow ? null : { ...flow, showIds };
   }

@@ -1,6 +1,8 @@
 <script lang="ts">
+  import { Router, Route } from "svelte-routing";
   import Login from "./pages/Login.svelte";
   import Account from "./pages/Account.svelte";
+  import PodcastFlowDetails from "./pages/PodcastFlowDetails.svelte";
 
   const accessToken = localStorage.getItem("access_token");
 </script>
@@ -12,6 +14,9 @@
   {:else}
     <Account />
   {/if}
+  <Router>
+    <Route path="flow/:flowId" component={PodcastFlowDetails} />
+  </Router>
 </main>
 
 <style>

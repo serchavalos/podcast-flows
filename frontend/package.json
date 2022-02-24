@@ -29,6 +29,7 @@
   },
   "dependencies": {
     "sirv-cli": "^2.0.0",
-    "spotify-web-api-js": "^1.5.2"
+    "spotify-web-api-js": "^1.5.2",
+    "svelte-routing": "^1.6.0"
   }
 }

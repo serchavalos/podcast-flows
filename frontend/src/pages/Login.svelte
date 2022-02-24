@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { navigate } from "svelte-routing";
   import { exchangeToken } from "../lib/auth-utils";
   import {
     SpotifyWebApiScope,
@@ -6,6 +7,11 @@
     generateCodeChallenge,
     generateUrlWithSearchParams,
   } from "../lib/auth-utils";
+
+  const accessToken = localStorage.getItem("access_token");
+  if (accessToken) {
+    navigate("/");
+  }
 
   const {
     env: { CLIENT_ID, REDIRECT_URI },
