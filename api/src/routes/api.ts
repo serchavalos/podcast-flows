@@ -1,9 +1,9 @@
 import { Router, Request, Response, NextFunction } from "express";
-import SpotifyWebApi from "spotify-web-api-node";
 import { PodcastFlowController } from "../lib/podcast-flows/controller";
 
-import { getBearerMiddleware } from "../middlewares/bearer-token";
-import { initDatabase, PodcastFlow } from "../storage";
+import { bearerMiddleware } from "../middlewares/bearer-token";
+import { setupPodcastFlowControllerMiddleware } from "../middlewares/setup-podcast-controller";
+import { PodcastFlow } from "../storage";
 
 declare global {
   // TODO: Figure out how to move this to `tsconfig.json`
@@ -11,7 +11,6 @@ declare global {
   namespace Express {
     interface User {
       username: string;
-      accessToken: string;
     }
   }
 }
@@ -19,17 +18,19 @@ declare global {
 type PodcastFlowResponse = Response<{}, { controller: PodcastFlowController }>;
 
 const router = Router();
-router.use(getBearerMiddleware());
-router.use((req: Request, res: Response, next: NextFunction) => {
-  const db = initDatabase();
-  const { username, accessToken } = req.user;
-  const api = new SpotifyWebApi();
-  api.setAccessToken(accessToken);
-
-  res.locals.controller = new PodcastFlowController(username, api, db);
+router.use(bearerMiddleware);
+router.use(setupPodcastFlowControllerMiddleware);
+router.use((_: Request, res: Response, next: NextFunction) => {
+  res.setHeader("Access-Control-Allow-Origin", "http://localhost:8080");
+  res.setHeader("Access-Control-Allow-Methods", "POST, GET, DELETE, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type");
+  res.setHeader("Access-Control-Max-Age", 86400);
   next();
 });
 
+router.options("/podcast-flows/", (_: Request, res: Response) => {
+  res.sendStatus(204);
+});
 router.get(
   "/podcast-flows/",
   async (req: Request, res: PodcastFlowResponse) => {
@@ -37,6 +38,8 @@ router.get(
 
     try {
       const flows = await controller.getAll();
+      res.setHeader("Access-Control-Max-Age", 86400);
+
       return res.json(flows);
     } catch (err) {
       if (!err.statusCode) {

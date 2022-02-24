@@ -4,13 +4,14 @@ Backend service for creating and editing podcast flows
 
 ## Endpoints
 
-| Endpoint                       | Description                                   |
-| ------------------------------ | --------------------------------------------- |
-| GET /api/podcast-flows/        | Returns all the flows registered by this user |
-| POST /api/podcast-flows/       | Creates a new flow                            |
-| GET /api/podcast-flows/{id}    | Returns a flow specified by its unique ID     |
-| POST /api/podcast-flows/{id}   | Modifies a flow specified by its unique ID    |
-| DELETE /api/podcast-flows/{id} | Deletes a flow specified by its unique ID     |
+| method | Endpoint                | Description                                   |
+| ------ | ----------------------- | --------------------------------------------- |
+| POST   | /auth/register          | Saves users's Spotify Web API's tokens        |
+| GET    | /api/podcast-flows/     | Returns all the flows registered by this user |
+| POST   | /api/podcast-flows/     | Creates a new flow                            |
+| GET    | /api/podcast-flows/{id} | Returns a flow specified by its unique ID     |
+| POST   | /api/podcast-flows/{id} | Modifies a flow specified by its unique ID    |
+| DELETE | /api/podcast-flows/{id} | Deletes a flow specified by its unique ID     |
 
 ## Schema
 

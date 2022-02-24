@@ -1,5 +1,6 @@
 <script lang="ts">
   import SpotifyWebApi from "spotify-web-api-js";
+  import PodcastFlowList from "../components/PodcastFlowList.svelte";
 
   const accessToken = localStorage.getItem("access_token");
   const savedUser = localStorage.getItem("user");
@@ -14,10 +15,15 @@
   });
 </script>
 
-<p>
+<div>
   {#if currentUser}
-    Welcome back, <strong>{currentUser.username}</strong>!
+    <p>
+      Welcome back, <strong>{currentUser.username}</strong>!
+    </p>
+    <p>
+      <PodcastFlowList {accessToken} />
+    </p>
   {:else}
     Loading...
   {/if}
-</p>
+</div>
