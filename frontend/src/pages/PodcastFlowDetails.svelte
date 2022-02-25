@@ -2,6 +2,7 @@
   import SpotifyWebApi from "spotify-web-api-js";
 
   import { redirectToLoginForAnonymousUsers } from "../lib/auth-routing";
+  import { PodcastFlowApi } from "../lib/podcast-flow-api";
 
   redirectToLoginForAnonymousUsers();
 
@@ -12,19 +13,17 @@
   const accessToken = localStorage.getItem("access_token");
 
   const spotifyApi = new SpotifyWebApi();
+  const flowApi = new PodcastFlowApi();
   spotifyApi.setAccessToken(accessToken);
+  flowApi.setAccessToken(accessToken);
 
-  fetch(`http://localhost:8888/api/podcast-flows/${flowId}`, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
-  })
-    .then((response) => response.json())
+  flowApi
+    .getFlowById(flowId)
     .then(async (data) => {
       flow = data;
-
-      const response = await spotifyApi.getShows(flow.showIds);
+      return spotifyApi.getShows(flow.showIds);
+    })
+    .then((response) => {
       shows = response.shows;
     });
 </script>

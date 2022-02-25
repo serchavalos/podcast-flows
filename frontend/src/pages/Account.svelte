@@ -25,7 +25,7 @@
       Welcome back, <strong>{currentUser.username}</strong>!
     </p>
     <p>
-      <PodcastFlowList {accessToken} />
+      <PodcastFlowList />
     </p>
   {:else}
     Loading...

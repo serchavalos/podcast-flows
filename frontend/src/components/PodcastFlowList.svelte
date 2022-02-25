@@ -2,22 +2,19 @@
   import { navigate } from "svelte-routing";
 
   import { redirectToLoginForAnonymousUsers } from "../lib/auth-routing";
+  import { PodcastFlow, PodcastFlowApi } from "../lib/podcast-flow-api";
 
   redirectToLoginForAnonymousUsers();
 
-  let podcastFlows: Array<Record<string, string>>;
-  const accessToken = localStorage.getItem("access_token");
+  let podcastFlows: Array<PodcastFlow>;
 
-  fetch("http://localhost:8888/api/podcast-flows", {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      podcastFlows = data;
-    });
+  const accessToken = localStorage.getItem("access_token");
+  const flowApi = new PodcastFlowApi();
+  flowApi.setAccessToken(accessToken);
+
+  flowApi.getAllFlows().then((data) => {
+    podcastFlows = data;
+  });
 </script>
 
 {#if podcastFlows}
