@@ -7,13 +7,7 @@
 To compile to JavaScript
 
 ```sh
-mv ./cli
-npm run build
-npm link
+lerna run build
 ```
 
-To run an example
-
-```sh
-podcast-flows-cli create "nyheter på svenska" -s spotify:show:12345,spotify:show:abcde -t dail
-```
+Visit http://localhost:8080

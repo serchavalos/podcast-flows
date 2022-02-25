@@ -1,18 +1,4 @@
-// TODO: This should come from the repo `podcast-flows/api`. For now it is copied-pasted
-export const TIME_INTERVALS = ["daily", "weekly", "monthly"] as const;
-export type TimeInterval = typeof TIME_INTERVALS[number];
-export type PodcastFlow = {
-  id: string;
-  name: string;
-  showIds: string[];
-  username: string;
-  interval: TimeInterval;
-  createdAt: number;
-  modifiedAt: number;
-  // Refers to the time when the playlist was refreshed
-  // with newest episodes
-  lastUpdateAt: null | number;
-};
+import type { PodcastFlow } from "@podcast-flows/api";
 
 export class PodcastFlowApi {
   private accessToken: string;

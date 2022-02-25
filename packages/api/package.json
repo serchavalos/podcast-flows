@@ -1,8 +1,13 @@
 {
-  "name": "podcast-flow-api",
-  "version": "0.0.1",
-  "description": "API for creating and updating a Podcast Flow",
+  "name": "@podcast-flows/api",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Web application for creating and updating a Podcast Flows",
+  "author": "Sergio Avalos <sergio.avalos@gmail.com>",
+  "homepage": "https://github.com/serchavalos/podcast-flows#readme",
+  "license": "ISC",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
@@ -12,8 +17,6 @@
     "format": "prettier --write \"src/**/*.ts\"",
     "lint": "tslint -p tsconfig.json"
   },
-  "author": "Sergio Avalos <sergio.avalos@gmail.com>",
-  "license": "MIT",
   "devDependencies": {
     "@types/express": "^4.17.13",
     "@types/jest": "^27.4.0",

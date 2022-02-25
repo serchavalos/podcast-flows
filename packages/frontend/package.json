@@ -1,7 +1,11 @@
 {
-  "name": "svelte-app",
-  "version": "1.0.0",
+  "name": "@podcast-flows/frontend",
+  "version": "0.0.0",
   "private": true,
+  "description": "Web application for creating and updating a Podcast Flows",
+  "author": "Sergio Avalos <sergio.avalos@gmail.com>",
+  "homepage": "https://github.com/serchavalos/podcast-flows#readme",
+  "license": "ISC",
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",
@@ -28,6 +32,7 @@
     "typescript": "^4.0.0"
   },
   "dependencies": {
+    "@podcast-flows/api": "^0.0.0",
     "sirv-cli": "^2.0.0",
     "spotify-web-api-js": "^1.5.2",
     "svelte-routing": "^1.6.0"

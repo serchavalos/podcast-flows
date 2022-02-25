@@ -1,8 +1,9 @@
 <script lang="ts">
   import { navigate } from "svelte-routing";
+  import type { PodcastFlow } from "@podcast-flows/api";
 
   import { redirectToLoginForAnonymousUsers } from "../lib/auth-routing";
-  import { PodcastFlow, PodcastFlowApi } from "../lib/podcast-flow-api";
+  import { PodcastFlowApi } from "../lib/podcast-flow-api";
 
   redirectToLoginForAnonymousUsers();
 

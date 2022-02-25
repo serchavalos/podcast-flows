@@ -4,6 +4,7 @@ import morgan from "morgan";
 
 import { router as apiRouter } from "./routes/api";
 import { router as authRouter } from "./routes/auth";
+export type { PodcastFlow } from "./storage";
 
 config();
 
