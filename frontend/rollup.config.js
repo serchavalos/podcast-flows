@@ -52,7 +52,7 @@ export default {
         env: {
           isProd: production,
           CLIENT_ID: process.env.CLIENT_ID,
-          REDIRECT_URI: "http://localhost:8080/",
+          REDIRECT_URI: "http://localhost:8080/login/",
         },
       }),
       preventAssignment: true,

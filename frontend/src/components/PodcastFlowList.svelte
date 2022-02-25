@@ -1,12 +1,12 @@
 <script lang="ts">
   import { navigate } from "svelte-routing";
 
-  export let accessToken: string;
-  if (!accessToken) {
-    navigate("/login");
-  }
+  import { redirectToLoginForAnonymousUsers } from "../lib/auth-routing";
+
+  redirectToLoginForAnonymousUsers();
 
   let podcastFlows: Array<Record<string, string>>;
+  const accessToken = localStorage.getItem("access_token");
 
   fetch("http://localhost:8888/api/podcast-flows", {
     method: "GET",
@@ -18,10 +18,6 @@
     .then((data) => {
       podcastFlows = data;
     });
-
-  const navigateToFlowDetails = (id: string) => {
-    navigate(`/flow/${id}`);
-  };
 </script>
 
 {#if podcastFlows}
@@ -33,7 +29,7 @@
     </thead>
     <tbody>
       {#each podcastFlows as flow}
-        <tr on:click={() => navigateToFlowDetails(flow.id)}>
+        <tr on:click={() => navigate(`/flow/${flow.id}`)}>
           <td>{flow.id}</td>
           <td>{flow.name}</td>
           <td>{flow.interval}</td>

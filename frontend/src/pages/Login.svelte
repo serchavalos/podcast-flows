@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { navigate } from "svelte-routing";
+  import { redirectToHomeForLoggedInUsers } from "../lib/auth-routing";
   import { exchangeToken } from "../lib/auth-utils";
   import {
     SpotifyWebApiScope,
@@ -8,10 +8,7 @@
     generateUrlWithSearchParams,
   } from "../lib/auth-utils";
 
-  const accessToken = localStorage.getItem("access_token");
-  if (accessToken) {
-    navigate("/");
-  }
+  redirectToHomeForLoggedInUsers();
 
   const {
     env: { CLIENT_ID, REDIRECT_URI },
@@ -54,7 +51,7 @@
       localStorage.setItem("expires_at", `${expiresAt}`);
 
       // clear search query params in the url
-      window.location.assign("/");
+      redirectToHomeForLoggedInUsers();
     });
   }
 </script>

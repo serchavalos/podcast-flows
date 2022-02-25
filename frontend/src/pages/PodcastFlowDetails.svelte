@@ -1,11 +1,16 @@
 <script lang="ts">
-  export let flowId: string;
-
   import SpotifyWebApi from "spotify-web-api-js";
+
+  import { redirectToLoginForAnonymousUsers } from "../lib/auth-routing";
+
+  redirectToLoginForAnonymousUsers();
+
+  export let flowId: string;
 
   let flow: Record<string, any>;
   let shows: Array<SpotifyApi.ShowObjectFull> = [];
   const accessToken = localStorage.getItem("access_token");
+
   const spotifyApi = new SpotifyWebApi();
   spotifyApi.setAccessToken(accessToken);
 
@@ -32,12 +37,12 @@
     </div>
     <div>
       {#each shows as show}
-        <div class="row">
+        <div class="flow-row">
           <img
             src={show.images[0].url}
             alt={show.name}
-            width="150"
-            height="150"
+            width="65"
+            height="65"
           />
           <div>
             <strong>{show.name}</strong>
@@ -54,14 +59,14 @@
     text-align: left;
   }
 
-  .row {
+  .flow-row {
     display: flex;
     justify-content: center;
   }
-  .row > img {
+  .flow-row > img {
     display: block;
   }
-  .row > div {
+  .flow-row > div {
     padding: 0 1em;
   }
 </style>

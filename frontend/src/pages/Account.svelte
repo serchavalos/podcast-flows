@@ -1,15 +1,14 @@
 <script lang="ts">
-  import { navigate } from "svelte-routing";
   import SpotifyWebApi from "spotify-web-api-js";
-  import PodcastFlowList from "../components/PodcastFlowList.svelte";
 
-  const accessToken = localStorage.getItem("access_token");
-  if (!accessToken) {
-    navigate("/login");
-  }
+  import PodcastFlowList from "../components/PodcastFlowList.svelte";
+  import { redirectToLoginForAnonymousUsers } from "../lib/auth-routing";
+
+  redirectToLoginForAnonymousUsers();
 
   const savedUser = localStorage.getItem("user");
   let currentUser = savedUser ? JSON.parse(savedUser) : null;
+  const accessToken = localStorage.getItem("access_token");
   const spotifyApi = new SpotifyWebApi();
 
   spotifyApi.setAccessToken(accessToken);

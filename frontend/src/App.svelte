@@ -3,19 +3,15 @@
   import Login from "./pages/Login.svelte";
   import Account from "./pages/Account.svelte";
   import PodcastFlowDetails from "./pages/PodcastFlowDetails.svelte";
-
-  const accessToken = localStorage.getItem("access_token");
 </script>
 
 <main>
   <h1>Podcast Flow</h1>
-  {#if !accessToken}
-    <Login />
-  {:else}
-    <Account />
-  {/if}
+
   <Router>
-    <Route path="flow/:flowId" component={PodcastFlowDetails} />
+    <Route path="/login" component={Login} />
+    <Route path="/flow/:flowId" component={PodcastFlowDetails} />
+    <Route path="/" component={Account} />
   </Router>
 </main>
 
@@ -23,6 +19,8 @@
   :global(body) {
     display: flex;
     height: 100vh;
+    max-width: 393px;
+    margin: 0 auto;
   }
   main {
     margin: auto;
