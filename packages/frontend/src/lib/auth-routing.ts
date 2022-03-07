@@ -1,6 +1,7 @@
+import { getSavedAccessToken } from "./auth-utils";
+
 function isLoggedIn(): boolean {
-  const accessToken = localStorage.getItem("access_token");
-  return !!accessToken;
+  return !!getSavedAccessToken();
 }
 
 export function redirectToLoginForAnonymousUsers(): void {

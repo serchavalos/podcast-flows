@@ -1,7 +1,9 @@
 <script lang="ts">
   import SpotifyWebApi from "spotify-web-api-js";
 
+  import PageWithMenu from "../components/PageWithMenu.svelte";
   import { redirectToLoginForAnonymousUsers } from "../lib/auth-routing";
+  import { getSavedAccessToken } from "../lib/auth-utils";
   import { PodcastFlowApi } from "../lib/podcast-flow-api";
 
   redirectToLoginForAnonymousUsers();
@@ -10,7 +12,7 @@
 
   let flow: Record<string, any>;
   let shows: Array<SpotifyApi.ShowObjectFull> = [];
-  const accessToken = localStorage.getItem("access_token");
+  const accessToken = getSavedAccessToken();
 
   const spotifyApi = new SpotifyWebApi();
   const flowApi = new PodcastFlowApi();
@@ -28,30 +30,32 @@
     });
 </script>
 
-{#if flow}
-  <article>
-    <div>
-      <h3>{flow.name}</h3>
-      <p>Interval: <strong>{flow.interval}</strong></p>
-    </div>
-    <div>
-      {#each shows as show}
-        <div class="flow-row">
-          <img
-            src={show.images[0].url}
-            alt={show.name}
-            width="65"
-            height="65"
-          />
-          <div>
-            <strong>{show.name}</strong>
-            <p>{@html show.description}</p>
+<PageWithMenu>
+  {#if flow}
+    <article>
+      <div>
+        <h3>{flow.name}</h3>
+        <p>Interval: <strong>{flow.interval}</strong></p>
+      </div>
+      <div>
+        {#each shows as show}
+          <div class="flow-row">
+            <img
+              src={show.images[0].url}
+              alt={show.name}
+              width="65"
+              height="65"
+            />
+            <div>
+              <strong>{show.name}</strong>
+              <p>{@html show.description}</p>
+            </div>
           </div>
-        </div>
-      {/each}
-    </div>
-  </article>
-{/if}
+        {/each}
+      </div>
+    </article>
+  {/if}
+</PageWithMenu>
 
 <style>
   article {

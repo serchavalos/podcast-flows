@@ -1,12 +1,14 @@
 <script lang="ts">
+  import Button from "@smui/button";
   import { redirectToHomeForLoggedInUsers } from "../lib/auth-routing";
-  import { exchangeToken } from "../lib/auth-utils";
+  import { logUserIn } from "../lib/auth-utils";
+  import { exchangeToken } from "../lib/spotify-api-auth-flow-utils";
   import {
     SpotifyWebApiScope,
     generateRandom,
     generateCodeChallenge,
     generateUrlWithSearchParams,
-  } from "../lib/auth-utils";
+  } from "../lib/spotify-api-auth-flow-utils";
 
   redirectToHomeForLoggedInUsers();
 
@@ -14,7 +16,7 @@
     env: { CLIENT_ID, REDIRECT_URI },
   } = process;
 
-  export function onLoginClick(ev: Event) {
+  function onLoginClick(ev: Event) {
     ev.preventDefault();
     const codeVerifier = generateRandom(64);
 
@@ -40,22 +42,36 @@
 
   if (code) {
     exchangeToken(code).then((data) => {
-      const accessToken = data.access_token;
-      const refreshToken = data.refresh_token;
-
-      const t = new Date();
-      const expiresAt = t.setSeconds(t.getSeconds() + data.expires_in);
-
-      localStorage.setItem("access_token", accessToken);
-      localStorage.setItem("refresh_token", refreshToken);
-      localStorage.setItem("expires_at", `${expiresAt}`);
-
+      logUserIn(data);
       // clear search query params in the url
       redirectToHomeForLoggedInUsers();
     });
   }
 </script>
 
-<p>
-  <a class="button" href={"#"} on:click={onLoginClick} target="_self">Login</a>
-</p>
+<div class="page">
+  <div class="container">
+    <h1>Podcast Flows</h1>
+    <p>Start by registering using Spotify's credentials</p>
+    <p>
+      <Button
+        on:click={onLoginClick}
+        variant="raised"
+        class="button-shaped-round">Login</Button
+      >
+    </p>
+  </div>
+</div>
+
+<style>
+  .page {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .container {
+    margin: auto;
+  }
+</style>

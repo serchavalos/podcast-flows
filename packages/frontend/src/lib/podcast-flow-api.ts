@@ -21,7 +21,7 @@ export class PodcastFlowApi {
     return this.sendRequest<void>(`${this.endpointPrefix}/${flowId}`, "DELETE");
   }
 
-  private sendRequest<T>(endpoint: string, method = "GET"): Promise<T> {
+  private async sendRequest<T>(endpoint: string, method = "GET"): Promise<T> {
     if (!this.accessToken) {
       throw new Error(
         "Missing access token; use `PodcastFlowApi.setAccessToken` method"

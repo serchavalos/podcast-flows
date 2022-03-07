@@ -3,13 +3,14 @@
   import type { PodcastFlow } from "@podcast-flows/api";
 
   import { redirectToLoginForAnonymousUsers } from "../lib/auth-routing";
+  import { getSavedAccessToken } from "../lib/auth-utils";
   import { PodcastFlowApi } from "../lib/podcast-flow-api";
 
   redirectToLoginForAnonymousUsers();
 
   let podcastFlows: Array<PodcastFlow>;
 
-  const accessToken = localStorage.getItem("access_token");
+  const accessToken = getSavedAccessToken();
   const flowApi = new PodcastFlowApi();
   flowApi.setAccessToken(accessToken);
 

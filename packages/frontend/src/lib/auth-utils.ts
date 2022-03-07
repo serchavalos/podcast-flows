@@ -1,78 +1,62 @@
-type ResponseToken = {
-  access_token: string;
-  refresh_token: string;
-  expires_in: number;
+import SpotifyWebApi from "spotify-web-api-js";
+
+import type { ResponseToken } from "./spotify-api-auth-flow-utils";
+
+export type User = {
+  username: string;
+  displayName: string;
+  imageUrl: string;
 };
 
-export const SpotifyWebApiScope =
-  "playlist-read-collaborative playlist-modify-public playlist-modify-private playlist-read-private";
+export enum LC_KEYS {
+  ACCESS_TOKEN = "access_token",
+  REFRESH_TOKEN = "refresh_token",
+  EXPIRES_AT = "expires_at",
+  USER_DATA = "user_data",
+}
 
-export function generateRandom(length = 5): string {
-  const possibleChars = "abcdefghijklmnopqrstuvwxyz0123456789";
-  const charsLength = possibleChars.length;
-  let random = "";
+export function logUserIn(token: ResponseToken): void {
+  const accessToken = token.access_token;
+  const refreshToken = token.refresh_token;
 
-  for (let i = 0; i < length; i++) {
-    const randomPosition = Math.floor(Math.random() * charsLength);
-    random += possibleChars.charAt(randomPosition);
+  const t = new Date();
+  const expiresAt = t.setSeconds(t.getSeconds() + token.expires_in);
+
+  localStorage.setItem(LC_KEYS.ACCESS_TOKEN, accessToken);
+  localStorage.setItem(LC_KEYS.REFRESH_TOKEN, refreshToken);
+  localStorage.setItem(LC_KEYS.EXPIRES_AT, `${expiresAt}`);
+}
+
+export function logout(): void {
+  localStorage.removeItem(LC_KEYS.ACCESS_TOKEN);
+  localStorage.removeItem(LC_KEYS.REFRESH_TOKEN);
+  localStorage.removeItem(LC_KEYS.EXPIRES_AT);
+  localStorage.removeItem(LC_KEYS.USER_DATA);
+}
+
+export function getSavedAccessToken(): string {
+  return localStorage.getItem(LC_KEYS.ACCESS_TOKEN) || "";
+}
+
+export async function getSavedUser(): Promise<User> {
+  const userData = localStorage.getItem(LC_KEYS.USER_DATA);
+  if (userData) {
+    const user = JSON.parse(userData);
+    return Promise.resolve(user);
   }
+  const accessToken = getSavedAccessToken();
+  const spotifyApi = new SpotifyWebApi();
+  spotifyApi.setAccessToken(accessToken);
 
-  return random;
-}
-
-/**
- *
- * @source https://github.com/tobika/spotify-auth-PKCE-example
- */
-export async function generateCodeChallenge(
-  codeVerifier: string
-): Promise<string> {
-  const digest = await crypto.subtle.digest(
-    "SHA-256",
-    new TextEncoder().encode(codeVerifier)
-  );
-
-  return btoa(String.fromCharCode(...new Uint8Array(digest)))
-    .replace(/=/g, "")
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_");
-}
-
-export function generateUrlWithSearchParams(
-  url: string,
-  params: Record<string, string>
-): URL {
-  const urlObject = new URL(url);
-  urlObject.search = new URLSearchParams(params).toString();
-
-  return urlObject;
-}
-
-export function exchangeToken(code: string): Promise<ResponseToken> {
-  const {
-    env: { CLIENT_ID, REDIRECT_URI },
-  } = process;
-  const code_verifier = localStorage.getItem("code_verifier");
-
-  return fetch("https://accounts.spotify.com/api/token", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
-    },
-    body: new URLSearchParams({
-      client_id: CLIENT_ID,
-      grant_type: "authorization_code",
-      code,
-      redirect_uri: REDIRECT_URI,
-      code_verifier,
-    }),
-  }).then(addThrowErrorToFetch);
-}
-
-async function addThrowErrorToFetch(response: Response) {
-  if (response.ok) {
-    return response.json();
-  } else {
-    throw { response, error: await response.json() };
-  }
+  return spotifyApi.getMe().then((spotifyUser) => {
+    const imageUrl =
+      spotifyUser.images.length > 0 ? spotifyUser.images[0].url : "";
+    const user: User = {
+      username: spotifyUser.id,
+      displayName: spotifyUser.display_name,
+      imageUrl,
+    };
+    localStorage.setItem(LC_KEYS.USER_DATA, JSON.stringify(user));
+    return user;
+  });
 }
