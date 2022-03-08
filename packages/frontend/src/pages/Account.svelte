@@ -7,11 +7,9 @@
   import { notification } from "../stores/notification";
   import PageWithMenu from "../components/PageWithMenu.svelte";
   import PodcastFlowList from "../components/PodcastFlowList.svelte";
-  import { redirectToLoginForAnonymousUsers } from "../lib/auth-routing";
 
   let notificationMessage: string | null;
 
-  //redirectToLoginForAnonymousUsers();
   notification.subscribe((value) => {
     if (!value) {
       return;
