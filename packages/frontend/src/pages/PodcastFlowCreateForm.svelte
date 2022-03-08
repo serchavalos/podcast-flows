@@ -11,7 +11,7 @@
   import PageWithMenu from "../components/PageWithMenu.svelte";
   import ShowsSearchField from "../components/ShowsSearchField.svelte";
   import { PodcastFlowApi } from "../lib/podcast-flow-api";
-  import { getSavedAccessToken, logout } from "../lib/auth-utils";
+  import { getSavedAccessToken } from "../lib/auth-utils";
   import type { Show } from "../lib/types";
 
   // TODO: Investigate why Svelte complained when
