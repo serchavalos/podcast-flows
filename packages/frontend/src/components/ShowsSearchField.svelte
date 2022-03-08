@@ -1,6 +1,6 @@
 <script lang="ts">
   import List, { Item, PrimaryText, SecondaryText, Text } from "@smui/list";
-  import Chip, { Set } from "@smui/chips";
+  import Chip, { Set, TrailingIcon } from "@smui/chips";
   import type { MenuComponentDev } from "@smui/menu";
   import Menu from "@smui/menu";
   import Textfield from "@smui/textfield";
@@ -36,9 +36,16 @@
     menu.setDefaultFocusState(2);
   }
 
-  function selectShow(show: Show) {
+  function selectShow(show: Show): void {
     selectedShows = [...selectedShows, show];
-    console.log(selectedShows.length);
+  }
+
+  function unselectShow(showId: string): void {
+    // TODO: This is triggering an error on the console log, but because
+    // Svelte is compiled, I have no idea what the error is referring to
+    // (Most likely a race condition because this "Chip" is disappearing before the click
+    // handler finishes executing)
+    selectedShows = selectedShows.filter((s) => s.id !== showId);
   }
 </script>
 
@@ -69,21 +76,14 @@
     </Menu>
   {/if}
   {#if selectedShows.length > 0}
-    <Set chips={selectedShows.map((s) => s.name)} let:chip nonInteractive>
-      <Chip {chip}>
-        <Text>{chip}</Text>
+    <Set chips={selectedShows} let:chip={show} nonInteractive>
+      <Chip chip={show}>
+        <Text>{show.name}</Text>
+        <TrailingIcon
+          on:click={() => unselectShow(show.id)}
+          class="material-icons">clear</TrailingIcon
+        >
       </Chip>
     </Set>
   {/if}
 </p>
-<!--
-
-  <Autocomplete search={searchShows} showMenuWithNoInput={false} label="Shows">
-    <Text
-      slot="loading"
-      style="display: flex; width: 100%; justify-content: center; align-items: center;"
-    >
-      <CircularProgress style="height: 24px; width: 24px;" indeterminate />
-    </Text>
-  </Autocomplete>
--->

@@ -20,8 +20,22 @@ export class PodcastFlowApi {
   public deleteFlow(flowId: string): Promise<void> {
     return this.sendRequest<void>(`${this.endpointPrefix}/${flowId}`, "DELETE");
   }
+  public createNewFlow(
+    flow: Pick<PodcastFlow, "name" | "showIds" | "interval">
+    // TODO: Missing type: @podcast-flows/api should have defined the response types
+  ): Promise<any> {
+    return this.sendRequest<any>(
+      this.endpointPrefix,
+      "POST",
+      JSON.stringify(flow)
+    );
+  }
 
-  private async sendRequest<T>(endpoint: string, method = "GET"): Promise<T> {
+  private async sendRequest<T>(
+    endpoint: string,
+    method = "GET",
+    body?: string
+  ): Promise<T> {
     if (!this.accessToken) {
       throw new Error(
         "Missing access token; use `PodcastFlowApi.setAccessToken` method"
@@ -32,7 +46,9 @@ export class PodcastFlowApi {
       method,
       headers: {
         Authorization: `Bearer ${this.accessToken}`,
+        "Content-type": "application/json",
       },
+      body,
     }).then((response) => response.json());
   }
 }
