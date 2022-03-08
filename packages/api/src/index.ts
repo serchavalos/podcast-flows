@@ -4,7 +4,9 @@ import morgan from "morgan";
 
 import { router as apiRouter } from "./routes/api";
 import { router as authRouter } from "./routes/auth";
-export type { PodcastFlow } from "./storage";
+
+export { TIME_INTERVALS } from "./storage";
+export type { PodcastFlow, TimeInterval } from "./storage";
 
 config();
 
