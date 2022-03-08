@@ -7,29 +7,40 @@
     Text,
     PrimaryText,
     SecondaryText,
+    Meta,
   } from "@smui/list";
-
+  import IconButton from "@smui/icon-button";
   import { redirectToLoginForAnonymousUsers } from "../lib/auth-routing";
   import { getSavedAccessToken, logout } from "../lib/auth-utils";
   import { PodcastFlowApi } from "../lib/podcast-flow-api";
+  import DeletePodcastDialog from "./DeletePodcastDialog.svelte";
 
   redirectToLoginForAnonymousUsers();
 
-  let podcastFlows: Array<PodcastFlow>;
+  let podcastFlows: Array<PodcastFlow> | null = null;
+  let podcastFlowIdPendingDeletion: string | null;
 
   const accessToken = getSavedAccessToken();
   const flowApi = new PodcastFlowApi();
   flowApi.setAccessToken(accessToken);
 
-  flowApi
-    .getAllFlows()
-    .then((data) => {
-      podcastFlows = data;
-    })
-    .catch(() => {
-      logout();
-      redirectToLoginForAnonymousUsers();
-    });
+  if (!podcastFlows) {
+    flowApi
+      .getAllFlows()
+      .then((data) => {
+        podcastFlows = data;
+      })
+      .catch(() => {
+        // TODO: Time to refactor these two functions
+        logout();
+        redirectToLoginForAnonymousUsers();
+      });
+  }
+
+  function openDeletePodcastDialog(ev: Event, flowId: string): void {
+    ev.stopPropagation();
+    podcastFlowIdPendingDeletion = flowId;
+  }
 </script>
 
 {#if podcastFlows}
@@ -41,7 +52,21 @@
           <PrimaryText>{flow.name}</PrimaryText>
           <SecondaryText>Interval: {flow.interval}</SecondaryText>
         </Text>
+        <Meta>
+          <IconButton
+            class="material-icons"
+            on:click={(ev) => openDeletePodcastDialog(ev, flow.id)}
+            >delete</IconButton
+          >
+        </Meta>
       </Item>
     {/each}
   </List>
+
+  <DeletePodcastDialog
+    bind:flowId={podcastFlowIdPendingDeletion}
+    onPodcastFlowDeleted={(flowId) => {
+      podcastFlows = podcastFlows.filter((f) => f.id !== flowId);
+    }}
+  />
 {/if}

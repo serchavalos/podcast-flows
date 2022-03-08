@@ -78,7 +78,7 @@
 
 <style>
   main {
-    height: 100vh;
+    min-height: 100vh;
     padding: 3.5rem 1rem 1rem 1rem;
   }
 

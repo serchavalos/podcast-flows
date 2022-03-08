@@ -1,10 +1,13 @@
 <script lang="ts">
   import SpotifyWebApi from "spotify-web-api-js";
+  import Button, { Label } from "@smui/button";
   import PageWithMenu from "../components/PageWithMenu.svelte";
   import PodcastFlowDetailsShowRow from "../components/PodcastFlowDetailsShowRow.svelte";
+  import DeletePodcastDialog from "../components/DeletePodcastDialog.svelte";
   import { redirectToLoginForAnonymousUsers } from "../lib/auth-routing";
   import { getSavedAccessToken, logout } from "../lib/auth-utils";
   import { PodcastFlowApi } from "../lib/podcast-flow-api";
+  import { navigate } from "svelte-routing";
 
   redirectToLoginForAnonymousUsers();
 
@@ -12,6 +15,7 @@
 
   let flow: Record<string, any>;
   let shows: Array<SpotifyApi.ShowObjectFull> = [];
+  let podcastFlowIdPendingDeletion: string | null;
   const accessToken = getSavedAccessToken();
 
   const spotifyApi = new SpotifyWebApi();
@@ -32,6 +36,11 @@
       logout();
       redirectToLoginForAnonymousUsers();
     });
+
+  function openDeletePodcastDialog(ev: Event): void {
+    ev.stopPropagation();
+    podcastFlowIdPendingDeletion = flowId;
+  }
 </script>
 
 <PageWithMenu>
@@ -51,6 +60,17 @@
           />
         {/each}
       </div>
+      <div>
+        <Button on:click={openDeletePodcastDialog} variant="raised">
+          <Label>Delete</Label>
+        </Button>
+      </div>
+      <DeletePodcastDialog
+        bind:flowId={podcastFlowIdPendingDeletion}
+        onPodcastFlowDeleted={() => {
+          navigate("/");
+        }}
+      />
     </article>
   {/if}
 </PageWithMenu>

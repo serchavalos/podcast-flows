@@ -23,7 +23,7 @@
 
 <PageWithMenu>
   <h2>Your Flows</h2>
-  <div>
+  <div class="podcast-flow-list">
     <PodcastFlowList />
   </div>
   <div class="controls">
@@ -44,6 +44,10 @@
 </PageWithMenu>
 
 <style>
+  .podcast-flow-list {
+    margin-bottom: 5rem;
+  }
+
   .controls {
     display: flex;
     flex-direction: row-reverse;
