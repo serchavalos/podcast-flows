@@ -50,17 +50,19 @@
 </script>
 
 <div class="page">
-  <div class="container">
-    <h1>Podcast Flows</h1>
-    <p>Start by registering using Spotify's credentials</p>
-    <p>
-      <Button
-        on:click={onLoginClick}
-        variant="raised"
-        class="button-shaped-round">Login</Button
-      >
-    </p>
-  </div>
+  {#if !code}
+    <div class="container">
+      <h1>Podcast Flows</h1>
+      <p>Start by registering using Spotify's credentials</p>
+      <p>
+        <Button
+          on:click={onLoginClick}
+          variant="raised"
+          class="button-shaped-round">Login</Button
+        >
+      </p>
+    </div>
+  {/if}
 </div>
 
 <style>

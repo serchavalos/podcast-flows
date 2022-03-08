@@ -1,8 +1,10 @@
 <script lang="ts">
+  import { navigate } from "svelte-routing";
   import Drawer, { Content, Header } from "@smui/drawer";
   import List, { Item, Text, Graphic, Separator } from "@smui/list";
   import TopAppBar, { Row, Section, Title } from "@smui/top-app-bar";
   import IconButton from "@smui/icon-button";
+
   import { redirectToLoginForAnonymousUsers } from "../lib/auth-routing";
   import { getSavedUser, logout, User } from "../lib/auth-utils";
 
@@ -53,7 +55,12 @@
   <Separator />
   <Content>
     <List>
-      <Item href={"#"} on:click={() => window.location.assign("/")}>
+      <Item
+        on:click={() => {
+          navigate("/");
+          toggleDrawer();
+        }}
+      >
         <Graphic class="material-icons" aria-hidden="true">home</Graphic>
         <Text>My flows</Text>
       </Item>

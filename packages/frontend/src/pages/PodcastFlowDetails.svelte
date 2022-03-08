@@ -1,9 +1,9 @@
 <script lang="ts">
   import SpotifyWebApi from "spotify-web-api-js";
-
   import PageWithMenu from "../components/PageWithMenu.svelte";
+  import PodcastFlowDetailsShowRow from "../components/PodcastFlowDetailsShowRow.svelte";
   import { redirectToLoginForAnonymousUsers } from "../lib/auth-routing";
-  import { getSavedAccessToken } from "../lib/auth-utils";
+  import { getSavedAccessToken, logout } from "../lib/auth-utils";
   import { PodcastFlowApi } from "../lib/podcast-flow-api";
 
   redirectToLoginForAnonymousUsers();
@@ -27,6 +27,10 @@
     })
     .then((response) => {
       shows = response.shows;
+    })
+    .catch(() => {
+      logout();
+      redirectToLoginForAnonymousUsers();
     });
 </script>
 
@@ -34,23 +38,17 @@
   {#if flow}
     <article>
       <div>
-        <h3>{flow.name}</h3>
+        <h1 class="mdc-typography--headline4">Title: {flow.name}</h1>
         <p>Interval: <strong>{flow.interval}</strong></p>
       </div>
       <div>
+        <h2 class="mdc-typography--headline5">Subscribed to this shows:</h2>
         {#each shows as show}
-          <div class="flow-row">
-            <img
-              src={show.images[0].url}
-              alt={show.name}
-              width="65"
-              height="65"
-            />
-            <div>
-              <strong>{show.name}</strong>
-              <p>{@html show.description}</p>
-            </div>
-          </div>
+          <PodcastFlowDetailsShowRow
+            imageUrl={show.images[0].url}
+            name={show.name}
+            description={show.description}
+          />
         {/each}
       </div>
     </article>
@@ -60,16 +58,5 @@
 <style>
   article {
     text-align: left;
-  }
-
-  .flow-row {
-    display: flex;
-    justify-content: center;
-  }
-  .flow-row > img {
-    display: block;
-  }
-  .flow-row > div {
-    padding: 0 1em;
   }
 </style>

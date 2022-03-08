@@ -1,3 +1,4 @@
+import { navigate } from "svelte-routing";
 import { getSavedAccessToken } from "./auth-utils";
 
 function isLoggedIn(): boolean {
@@ -6,12 +7,12 @@ function isLoggedIn(): boolean {
 
 export function redirectToLoginForAnonymousUsers(): void {
   if (!isLoggedIn()) {
-    window.location.assign("/login");
+    navigate("/login");
   }
 }
 
 export function redirectToHomeForLoggedInUsers(): void {
   if (isLoggedIn()) {
-    window.location.assign("/");
+    navigate("/");
   }
 }
