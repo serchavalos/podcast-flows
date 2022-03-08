@@ -1,4 +1,5 @@
 import { Buffer } from "buffer";
+import { LC_KEYS } from "./auth-utils";
 
 export type ResponseToken = {
   access_token: string;
@@ -55,7 +56,7 @@ export async function exchangeToken(code: string): Promise<ResponseToken> {
   const {
     env: { CLIENT_ID, REDIRECT_URI },
   } = process;
-  const code_verifier = localStorage.getItem("code_verifier");
+  const code_verifier = localStorage.getItem(LC_KEYS.CODE_VERIFIER);
 
   return fetch("https://accounts.spotify.com/api/token", {
     method: "POST",
@@ -69,7 +70,12 @@ export async function exchangeToken(code: string): Promise<ResponseToken> {
       redirect_uri: REDIRECT_URI,
       code_verifier,
     }),
-  }).then(addThrowErrorToFetch);
+  })
+    .then(addThrowErrorToFetch)
+    .then((data) => {
+      localStorage.removeItem(LC_KEYS.CODE_VERIFIER);
+      return data;
+    });
 }
 
 async function addThrowErrorToFetch(response: Response) {

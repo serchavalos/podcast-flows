@@ -13,6 +13,7 @@ export enum LC_KEYS {
   REFRESH_TOKEN = "refresh_token",
   EXPIRES_AT = "expires_at",
   USER_DATA = "user_data",
+  CODE_VERIFIER = "code_verifier",
 }
 
 export function logUserIn(token: ResponseToken): void {
