@@ -2,17 +2,17 @@
   import Button from "@smui/button";
   import Textfield from "@smui/textfield";
   import Select, { Option } from "@smui/select";
-  import HelperText from "@smui/textfield/helper-text";
   import type { TimeInterval } from "@podcast-flows/api";
   import PageWithMenu from "../components/PageWithMenu.svelte";
   import ShowsSearchField from "../components/ShowsSearchField.svelte";
+  import type { Show } from "../lib/types";
 
   let name: string | null = null;
   let interval: TimeInterval | null = null;
   // TODO: Investigate why Svelte complained when
   // importing `TIME_INTERVALS` from "@podcast-flows/api"
   const intervals: Array<TimeInterval> = ["daily", "weekly", "monthly"];
-  let selectedShows;
+  let selectedShows: Show[];
 
   function submitForm(event: Event): void {
     event.preventDefault();

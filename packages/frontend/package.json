@@ -49,6 +49,7 @@
     "@smui/select": "^6.0.0-beta.15",
     "@smui/textfield": "^6.0.0-beta.15",
     "@smui/top-app-bar": "^6.0.0-beta.15",
+    "@types/lodash.debounce": "^4.0.6",
     "buffer": "^6.0.3",
     "lodash.debounce": "^4.0.8",
     "sirv-cli": "^2.0.0",

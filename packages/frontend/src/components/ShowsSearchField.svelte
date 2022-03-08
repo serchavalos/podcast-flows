@@ -9,13 +9,7 @@
   import SpotifyWebApi from "spotify-web-api-js";
   import debounce from "lodash.debounce";
   import { getSavedAccessToken } from "../lib/auth-utils";
-
-  type Show = {
-    id: string;
-    name: string;
-    description: string;
-    imageUrl: string;
-  };
+  import type { Show } from "../lib/types";
 
   const spotifyApi = new SpotifyWebApi();
   const accessToken = getSavedAccessToken();
