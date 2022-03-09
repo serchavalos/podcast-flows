@@ -1,5 +1,11 @@
 import { PromisedDatabase } from "../lib/promised-sqllite3";
 
+type UserRecord = {
+  accessToken: string;
+  refreshToken: string;
+  username: string;
+};
+
 export class UsersStorage {
   constructor(private db: PromisedDatabase) {
     db.serialize(() => {
@@ -30,5 +36,22 @@ export class UsersStorage {
       }
       throw err;
     }
+  }
+
+  getAllUsers(): Promise<UserRecord[]> {
+    return this.db.asyncAll(
+      "SELECT username, accessToken, refreshToken FROM users"
+    );
+  }
+
+  updateTokens(
+    username: string,
+    accessToken: string,
+    refreshToken: string
+  ): Promise<void> {
+    return this.db.asyncRun(
+      `UPDATE users SET accessToken = "${accessToken}", refreshToken = "${refreshToken}" WHERE username = ?`,
+      username
+    );
   }
 }

@@ -15,7 +15,8 @@
     "prestart": "npm run build",
     "start": "node dist/index.js",
     "format": "prettier --write \"src/**/*.ts\"",
-    "lint": "tslint -p tsconfig.json"
+    "lint": "tslint -p tsconfig.json",
+    "renew-podcasts": "ts-node-dev scripts/renew-podcast-flows.ts"
   },
   "devDependencies": {
     "@types/express": "^4.17.13",
