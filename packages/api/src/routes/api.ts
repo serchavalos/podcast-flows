@@ -125,10 +125,8 @@ router.delete(
         });
       }
       await controller.delete(id);
-      res.status(200);
-      return res.json({
-        message: `Podcast flow ${id} has been deleted`,
-      });
+      res.status(204);
+      return res.json({});
     } catch (err) {
       return res.json({
         error: {
