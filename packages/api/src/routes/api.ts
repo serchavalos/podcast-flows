@@ -68,6 +68,7 @@ router.post(
     try {
       const { name, showIds = [], interval } = req.body;
       const flowId = await controller.addNew(name, showIds, interval);
+      await controller.renew(flowId);
       return res.json({ flowId });
     } catch (err) {
       if (!err.statusCode) {
@@ -128,6 +129,55 @@ router.delete(
       res.status(204);
       return res.json({});
     } catch (err) {
+      if (!err.statusCode) {
+        return res.json({
+          error: {
+            status: err.code || 400,
+            message: err.message,
+          },
+        });
+      }
+
+      return res.json({
+        error: {
+          status: err.statusCode,
+          message: err.body.error.message,
+        },
+      });
+    }
+  }
+);
+
+router.put(
+  "/podcast-flows/:id/renew",
+  async (req: Request, res: PodcastFlowResponse) => {
+    const { controller } = res.locals;
+
+    try {
+      const { id } = req.params;
+      const flow = await controller.getById(id);
+      if (!flow) {
+        return res.json({
+          error: {
+            status: 404,
+            message: "Podcast flow not found",
+          },
+        });
+      }
+      await controller.renew(id);
+      res.status(204);
+      return res.json({});
+    } catch (err) {
+      // TODO Time to refactor this error handling
+      if (!err.statusCode) {
+        return res.json({
+          error: {
+            status: err.code || 400,
+            message: err.message,
+          },
+        });
+      }
+
       return res.json({
         error: {
           status: err.statusCode,

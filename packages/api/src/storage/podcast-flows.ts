@@ -46,7 +46,7 @@ export class PodcastFlowsStorage {
 
   async addNewFlow(
     values: Omit<PodcastFlow, "createdAt" | "modifiedAt" | "lastUpdateAt">
-  ): Promise<boolean> {
+  ): Promise<void> {
     const { id, showIds, name, username, interval } = values;
     const flowValuesStatement = [id, name, username, interval]
       .map((i) => `'${i}'`)
@@ -61,26 +61,47 @@ export class PodcastFlowsStorage {
       throw new Error(`Unable to insert a new podcast flow.\nDetails: ${err}`);
     }
     if (showIds.length > 0) {
-      return this.addShowIdsToFlow(id, showIds);
+      return this.setShowIdsToFlow(id, showIds);
     }
-    return true;
   }
 
-  async addShowIdsToFlow(flowId: string, showIds: string[]): Promise<boolean> {
-    const showIdsStatement = showIds
-      .map((showId) => `('${flowId}','${showId}')`)
+  async editFlow(values: Partial<PodcastFlow>): Promise<void> {
+    const { id, showIds, lastUpdateAt, ...podcastFlowValues } = values;
+    const fieldNames = Object.keys(podcastFlowValues)
+      .map((name) => `${name} = "${podcastFlowValues[name]}"`)
       .join(", ");
 
     try {
       await this.db.asyncRun(
-        `INSERT INTO podcast_flows_shows  (podcastFlowID, showID) VALUES ${showIdsStatement}`
+        // REVIEW: This is vulnerable to SQL injection attack
+        `UPDATE podcast_flows SET ${fieldNames}, lastUpdateAt = CURRENT_TIMESTAMP WHERE id = ?`,
+        id
       );
+    } catch (err) {
+      throw new Error(`Unable to update podcast_flows row.\nDetails: ${err}`);
+    }
+    if (showIds.length > 0) {
+      this.setShowIdsToFlow(id, showIds);
+    }
+  }
+
+  async setShowIdsToFlow(flowId: string, showIds: string[]): Promise<void> {
+    try {
+      await this.db.asyncRun(
+        `DELETE FROM podcast_flows_shows WHERE podcastFlowID = ?`,
+        flowId
+      );
+      for (const showId of showIds) {
+        await this.db.asyncRun(
+          `INSERT INTO podcast_flows_shows (podcastFlowID, showID) VALUES (?, ?)`,
+          [flowId, showId]
+        );
+      }
     } catch (err) {
       throw new Error(
         `Unable to add show IDs to the flow ID ${flowId}: ${err}`
       );
     }
-    return true;
   }
 
   async getFlowById(flowId: string): Promise<PodcastFlow | null> {

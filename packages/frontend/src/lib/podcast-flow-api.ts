@@ -49,6 +49,11 @@ export class PodcastFlowApi {
         "Content-type": "application/json",
       },
       body,
-    }).then((response) => response.json());
+    }).then((response) => {
+      if (response.status === 204) {
+        return;
+      }
+      return response.json();
+    });
   }
 }

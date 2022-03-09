@@ -1,7 +1,7 @@
 import { Database, RunResult } from "sqlite3";
 
 export class PromisedDatabase extends Database {
-  asyncRun(sql: string, params = []): Promise<void> {
+  asyncRun(sql: string, params: any = []): Promise<void> {
     const instance = this;
     const runFunc = super.run;
     return new Promise((resolve, reject) => {
