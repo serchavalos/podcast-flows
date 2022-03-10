@@ -1,8 +1,8 @@
 import { config } from "dotenv";
-import express from "express";
+import express, { Request, Response } from "express";
 import morgan from "morgan";
 
-import { router as apiRouter } from "./routes/api";
+import { router as podcastFlowsAPI } from "./routes/podcastFlowsAPI";
 import { router as authRouter } from "./routes/auth";
 
 export { TIME_INTERVALS } from "./storage";
@@ -20,7 +20,8 @@ app.use(morgan("tiny"));
 
 // Routes
 app.use("/auth", authRouter);
-app.use("/api", apiRouter);
+app.get("/api/status/", (_: Request, res: Response) => res.send("OK"));
+app.use("/api/podcast-flows/", podcastFlowsAPI);
 
 // tslint:disable-next-line:no-console
 app.listen(port, () => console.log(`Listening http://${host}:${port}`));
