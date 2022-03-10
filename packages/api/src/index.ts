@@ -10,8 +10,8 @@ export type { PodcastFlow, TimeInterval } from "./storage";
 
 config();
 
-const port = 8888;
-const host = "localhost";
+const port = process.env.PORT || 8888;
+const host = process.env.HOST || "localhost";
 
 const app = express();
 app.use(express.json());

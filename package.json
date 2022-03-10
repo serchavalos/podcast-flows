@@ -1,7 +1,14 @@
 {
-  "name": "root",
+  "name": "podcast-flows",
   "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "version": "0.0.1",
   "devDependencies": {
     "lerna": "^4.0.0"
+  },
+  "scripts": {
+    "heroku-postbuild": "./scripts/heroku.build.sh"
   }
 }
