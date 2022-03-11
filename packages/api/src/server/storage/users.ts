@@ -15,10 +15,17 @@ export class UsersStorage {
     username: string
   ): Promise<void> {
     try {
-      await this.client.query(
-        "INSERT INTO users (accessToken, refreshToken, username) VALUES ($1::text, $2::text, $3::text)",
-        [accessToken, refreshToken, username]
-      );
+      if (await this.doesUserExist(username)) {
+        await this.client.query(
+          "UPDATE users SET accessToken=$1::text, refreshToken=$2::text WHERE username = $3::text",
+          [accessToken, refreshToken, username]
+        );
+      } else {
+        await this.client.query(
+          "INSERT INTO users (accessToken, refreshToken) VALUES ($1::text, $2::text, $3::text)",
+          [accessToken, refreshToken, username]
+        );
+      }
     } catch (err) {
       if (err.code === "SQLITE_CONSTRAINT") {
         return; // Ignore it; it's trying to save a duplicated user
@@ -43,5 +50,13 @@ export class UsersStorage {
       `UPDATE users SET accessToken = "${accessToken}", refreshToken = "${refreshToken}" WHERE username = $1::text`,
       [username]
     );
+  }
+
+  private async doesUserExist(username: string): Promise<boolean> {
+    const result = await this.client.query(
+      "SELECT * FROM users WHERE username = $1::text",
+      [username]
+    );
+    return result.rowCount > 0;
   }
 }
