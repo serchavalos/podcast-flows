@@ -17,12 +17,12 @@ export class UsersStorage {
     try {
       if (await this.doesUserExist(username)) {
         await this.client.query(
-          "UPDATE users SET accessToken=$1::text, refreshToken=$2::text WHERE username = $3::text",
+          `UPDATE users SET "accessToken"=$1::text, "refreshToken"=$2::text WHERE username = $3::text`,
           [accessToken, refreshToken, username]
         );
       } else {
         await this.client.query(
-          "INSERT INTO users (accessToken, refreshToken) VALUES ($1::text, $2::text, $3::text)",
+          `INSERT INTO users ("accessToken", "refreshToken", username) VALUES ($1::text, $2::text, $3::text)`,
           [accessToken, refreshToken, username]
         );
       }
@@ -36,7 +36,7 @@ export class UsersStorage {
 
   async getAllUsers(): Promise<UserRecord[]> {
     const result = await this.client.query<UserRecord>(
-      "SELECT username, accessToken, refreshToken FROM users"
+      `SELECT username, "accessToken", "refreshToken" FROM users`
     );
     return result.rows;
   }
@@ -47,8 +47,8 @@ export class UsersStorage {
     refreshToken: string
   ): Promise<void> {
     await this.client.query(
-      `UPDATE users SET accessToken = "${accessToken}", refreshToken = "${refreshToken}" WHERE username = $1::text`,
-      [username]
+      `UPDATE users SET "accessToken" = $1::text, "refreshToken" = $2::text WHERE username = $3::text`,
+      [accessToken, refreshToken, username]
     );
   }
 

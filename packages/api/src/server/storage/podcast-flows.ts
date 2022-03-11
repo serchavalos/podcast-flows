@@ -49,9 +49,9 @@ export class PodcastFlowsStorage {
     const fieldNames = Object.keys(podcastFlowValues).map((name) => {
       if (name.substr(-2) === "At") {
         // Date fields are treated differently
-        return `${name} = (to_timestamp(${podcastFlowValues[name]} / 1000.0))`;
+        return `"${name}" = (to_timestamp(${podcastFlowValues[name]} / 1000.0))`;
       }
-      return `${name} = '${podcastFlowValues[name]}'`;
+      return `"${name}" = '${podcastFlowValues[name]}'`;
     });
 
     try {
@@ -72,12 +72,12 @@ export class PodcastFlowsStorage {
   async setShowIdsToFlow(flowId: string, showIds: string[]): Promise<void> {
     try {
       await this.client.query(
-        `DELETE FROM podcast_flows_shows WHERE podcastFlowID = $1::text`,
+        `DELETE FROM podcast_flows_shows WHERE "podcastFlowID" = $1::text`,
         [flowId]
       );
       for (const showId of showIds) {
         await this.client.query(
-          `INSERT INTO podcast_flows_shows (podcastFlowID, showID) VALUES ($1::text, $2::text)`,
+          `INSERT INTO podcast_flows_shows ("podcastFlowID", "showID") VALUES ($1::text, $2::text)`,
           [flowId, showId]
         );
       }
@@ -94,13 +94,13 @@ export class PodcastFlowsStorage {
         `SELECT * FROM podcast_flows WHERE id = $1::text`,
         [flowId]
       ),
-      this.client.query<{ showid: string }>(
-        `SELECT showID FROM podcast_flows_shows WHERE podcastFlowID = $1::text`,
+      this.client.query<{ showID: string }>(
+        `SELECT "showID" FROM podcast_flows_shows WHERE "podcastFlowID" = $1::text`,
         [flowId]
       ),
     ]);
 
-    const showIds = showIdRows.rows.map((row) => row.showid);
+    const showIds = showIdRows.rows.map((row) => row.showID);
 
     return !flow ? null : { ...flow.rows[0], showIds };
   }
@@ -114,9 +114,9 @@ export class PodcastFlowsStorage {
       this.client.query<{ podcastFlowID: string; showID: string }>(
         `SELECT pfs.*
       FROM podcast_flows AS pf
-      JOIN podcast_flows_shows AS pfs ON pf.id = pfs.podcastFlowID
+      JOIN podcast_flows_shows AS pfs ON pf.id = pfs."podcastFlowID"
       WHERE pf.username = $1::text
-      ORDER BY pfs.podcastFlowID`,
+      ORDER BY pfs."podcastFlowID"`,
         [username]
       ),
     ]);
@@ -151,7 +151,7 @@ export class PodcastFlowsStorage {
         flowId,
       ]),
       this.client.query(
-        `DELETE FROM podcast_flows_shows WHERE podcastFlowID = $1::text`,
+        `DELETE FROM podcast_flows_shows WHERE "podcastFlowID" = $1::text`,
         [flowId]
       ),
     ]);

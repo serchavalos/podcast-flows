@@ -11,7 +11,10 @@
   } from "@smui/list";
   import IconButton from "@smui/icon-button";
   import { redirectToLoginForAnonymousUsers } from "../lib/auth-routing";
-  import { getSavedAccessToken, logout } from "../lib/auth-utils";
+  import {
+    getSavedAccessToken,
+    handleUnauthorizeResponse,
+  } from "../lib/auth-utils";
   import { PodcastFlowApi } from "../lib/podcast-flow-api";
   import DeletePodcastDialog from "./DeletePodcastDialog.svelte";
 
@@ -30,10 +33,11 @@
       .then((data) => {
         podcastFlows = data;
       })
-      .catch(() => {
-        // TODO: Time to refactor these two functions
-        logout();
-        redirectToLoginForAnonymousUsers();
+      .catch((err) => {
+        console.log(err);
+        if (err.status === 401) {
+          return handleUnauthorizeResponse();
+        }
       });
   }
 
