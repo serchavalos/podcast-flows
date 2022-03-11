@@ -1,4 +1,4 @@
-import { PromisedDatabase } from "../lib/promised-sqllite3";
+import { Client } from "pg";
 
 export const TIME_INTERVALS = ["daily", "weekly", "monthly"] as const;
 
@@ -18,31 +18,7 @@ export type PodcastFlow = {
 };
 
 export class PodcastFlowsStorage {
-  constructor(private db: PromisedDatabase) {
-    const timeIntervalCheck = TIME_INTERVALS.map((t) => `'${t}'`).join(", ");
-    db.serialize(() => {
-      // TODO: Review for better ways to migrate a TS type to a DB schema
-      db.run(
-        `CREATE TABLE IF NOT EXISTS podcast_flows ( \
-          id TEXT PRIMARY KEY, \
-          name TEXT NOT NULL, \
-          username TEXT NOT NULL, \
-          interval VARCHAR(10), \
-          createdAt  DATETIME DEFAULT CURRENT_TIMESTAMP, \
-          modifiedAt  DATETIME DEFAULT CURRENT_TIMESTAMP, \
-          lastUpdateAt  DATETIME DEFAULT NULL, \
-          CHECK (interval IN (${timeIntervalCheck})) \
-          )`
-      );
-
-      db.run(
-        `CREATE TABLE IF NOT EXISTS podcast_flows_shows ( \
-          podcastFlowID TEXT NOT NULL, \
-          showID TEXT NOT NULL \
-        )`
-      );
-    });
-  }
+  constructor(private client: Client) {}
 
   async addNewFlow(
     values: Omit<PodcastFlow, "createdAt" | "modifiedAt" | "lastUpdateAt">
@@ -54,7 +30,7 @@ export class PodcastFlowsStorage {
 
     try {
       // REVIEW: This is vulnerable to SQL injection attack
-      await this.db.asyncRun(
+      await this.client.query(
         `INSERT INTO podcast_flows  (id, name, username, interval) VALUES (${flowValuesStatement})`
       );
     } catch (err) {
@@ -65,35 +41,43 @@ export class PodcastFlowsStorage {
     }
   }
 
-  async editFlow(values: Partial<PodcastFlow>): Promise<void> {
-    const { id, showIds, lastUpdateAt, ...podcastFlowValues } = values;
-    const fieldNames = Object.keys(podcastFlowValues)
-      .map((name) => `${name} = "${podcastFlowValues[name]}"`)
-      .join(", ");
+  async editFlow(
+    flowId,
+    values: Partial<Omit<PodcastFlow, "id" | "createdAt">>
+  ): Promise<void> {
+    const { showIds, ...podcastFlowValues } = values;
+    const fieldNames = Object.keys(podcastFlowValues).map((name) => {
+      if (name.substr(-2) === "At") {
+        // Date fields are treated differently
+        return `${name} = (to_timestamp(${podcastFlowValues[name]} / 1000.0))`;
+      }
+      return `${name} = '${podcastFlowValues[name]}'`;
+    });
 
     try {
-      await this.db.asyncRun(
+      await this.client.query(
         // REVIEW: This is vulnerable to SQL injection attack
-        `UPDATE podcast_flows SET ${fieldNames}, lastUpdateAt = CURRENT_TIMESTAMP WHERE id = ?`,
-        id
+        `UPDATE podcast_flows SET ${fieldNames} WHERE id = $1::text`,
+        [flowId]
       );
     } catch (err) {
       throw new Error(`Unable to update podcast_flows row.\nDetails: ${err}`);
     }
+
     if (showIds.length > 0) {
-      this.setShowIdsToFlow(id, showIds);
+      this.setShowIdsToFlow(flowId, showIds);
     }
   }
 
   async setShowIdsToFlow(flowId: string, showIds: string[]): Promise<void> {
     try {
-      await this.db.asyncRun(
-        `DELETE FROM podcast_flows_shows WHERE podcastFlowID = ?`,
-        flowId
+      await this.client.query(
+        `DELETE FROM podcast_flows_shows WHERE podcastFlowID = $1::text`,
+        [flowId]
       );
       for (const showId of showIds) {
-        await this.db.asyncRun(
-          `INSERT INTO podcast_flows_shows (podcastFlowID, showID) VALUES (?, ?)`,
+        await this.client.query(
+          `INSERT INTO podcast_flows_shows (podcastFlowID, showID) VALUES ($1::text, $2::text)`,
           [flowId, showId]
         );
       }
@@ -105,56 +89,69 @@ export class PodcastFlowsStorage {
   }
 
   async getFlowById(flowId: string): Promise<PodcastFlow | null> {
-    const [flow, showIdRows] = (await Promise.all([
-      this.db.asyncGet(`SELECT * FROM podcast_flows WHERE id = ?`, [flowId]),
-      this.db.asyncAll(
-        `SELECT showID FROM podcast_flows_shows WHERE podcastFlowID = ?`,
+    const [flow, showIdRows] = await Promise.all([
+      this.client.query<PodcastFlow>(
+        `SELECT * FROM podcast_flows WHERE id = $1::text`,
         [flowId]
       ),
-    ])) as [Omit<PodcastFlow, "showIds"> | null, { showID: string }[]];
-    const showIds = showIdRows.map((row) => row.showID);
+      this.client.query<{ showid: string }>(
+        `SELECT showID FROM podcast_flows_shows WHERE podcastFlowID = $1::text`,
+        [flowId]
+      ),
+    ]);
 
-    return !flow ? null : { ...flow, showIds };
+    const showIds = showIdRows.rows.map((row) => row.showid);
+
+    return !flow ? null : { ...flow.rows[0], showIds };
   }
 
   async getFlowsByUsername(username: string): Promise<PodcastFlow[]> {
-    const [rows, showIds] = await Promise.all([
-      this.db.asyncAll(`SELECT * FROM podcast_flows WHERE username = ?`, [
-        username,
-      ]),
-      this.db.asyncAll(
+    const [flows, showIds] = await Promise.all([
+      this.client.query<PodcastFlow>(
+        `SELECT * FROM podcast_flows WHERE username = $1::text`,
+        [username]
+      ),
+      this.client.query<{ podcastFlowID: string; showID: string }>(
         `SELECT pfs.*
       FROM podcast_flows AS pf
       JOIN podcast_flows_shows AS pfs ON pf.id = pfs.podcastFlowID
-      WHERE pf.username = ?
+      WHERE pf.username = $1::text
       ORDER BY pfs.podcastFlowID`,
         [username]
       ),
     ]);
-    const showIdsDict = showIds.reduce((acc, { podcastFlowID, showID }) => {
-      if (!acc[podcastFlowID]) {
-        acc[podcastFlowID] = [];
-      }
-      acc[podcastFlowID].push(showID);
-      return acc;
-    }, {});
+    const showIdsDict = showIds.rows.reduce(
+      (acc, { podcastFlowID, showID }) => {
+        if (!acc[podcastFlowID]) {
+          acc[podcastFlowID] = [];
+        }
+        acc[podcastFlowID].push(showID);
+        return acc;
+      },
+      {}
+    );
 
-    return rows.map((row) => ({ ...row, showIds: showIdsDict[row.id] || [] }));
+    return flows.rows.map((row) => ({
+      ...row,
+      showIds: showIdsDict[row.id] || [],
+    }));
   }
 
   async isFlowNameAlreadyRegistered(name: string): Promise<boolean> {
-    const row = await this.db.asyncGet(
-      `SELECT count(1) AS count FROM podcast_flows WHERE name = ?`,
+    const result = await this.client.query(
+      `SELECT * FROM podcast_flows WHERE name = $1::text`,
       [name]
     );
-    return row.count > 0;
+    return result.rowCount > 0;
   }
 
   async deleteFlowById(flowId: string): Promise<void> {
     await Promise.all([
-      this.db.asyncRun(`DELETE FROM podcast_flows WHERE id = ?`, [flowId]),
-      this.db.asyncRun(
-        `DELETE FROM podcast_flows_shows WHERE podcastFlowID = ?`,
+      this.client.query(`DELETE FROM podcast_flows WHERE id = $1::text`, [
+        flowId,
+      ]),
+      this.client.query(
+        `DELETE FROM podcast_flows_shows WHERE podcastFlowID = $1::text`,
         [flowId]
       ),
     ]);

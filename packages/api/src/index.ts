@@ -1,4 +1,5 @@
 import { config } from "dotenv";
+config();
 import express, { Request, Response } from "express";
 import morgan from "morgan";
 
@@ -7,8 +8,6 @@ import { router as authRouter } from "./routes/auth";
 
 export { TIME_INTERVALS } from "./storage";
 export type { PodcastFlow, TimeInterval } from "./storage";
-
-config();
 
 const port = process.env.PORT || 8888;
 const host = process.env.HOST || "localhost";

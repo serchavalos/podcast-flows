@@ -1,23 +1,19 @@
 import { isAfter } from "date-fns";
+import { Client } from "pg";
 import SpotifyWebApi from "spotify-web-api-node";
 
 import { buildFlowMetadata, getDateLimitByInterval } from "./utils";
 import { PodcastFlow, PodcastFlowsStorage, TimeInterval } from "../../storage/";
 import { SimplifiedSpotifyApi } from "./simplified-spotify-api";
-import { PromisedDatabase } from "../promised-sqllite3";
 
 export class PodcastFlowController {
   private username: string;
   private spotifyApi: SimplifiedSpotifyApi;
   private storage: PodcastFlowsStorage;
 
-  constructor(
-    username: string,
-    api: SpotifyWebApi,
-    database: PromisedDatabase
-  ) {
+  constructor(username: string, api: SpotifyWebApi, client: Client) {
     this.username = username;
-    this.storage = new PodcastFlowsStorage(database);
+    this.storage = new PodcastFlowsStorage(client);
     this.spotifyApi = new SimplifiedSpotifyApi(api);
   }
 
@@ -109,10 +105,10 @@ export class PodcastFlowController {
     await this.spotifyApi.updatePlaylistContent(flow.id, episodesUris);
 
     // 5. Update the dates on the flow
-    const timestamp = new Date().getTime();
-    return this.storage.editFlow({
-      ...flow,
-      lastUpdateAt: timestamp,
+    const lastUpdateAt = new Date().getTime();
+    return this.storage.editFlow(flow.id, {
+      showIds: flow.showIds,
+      lastUpdateAt,
     });
   }
 }

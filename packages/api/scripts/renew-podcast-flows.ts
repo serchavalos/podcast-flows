@@ -14,9 +14,6 @@ const blue = (...args: any[]) => log("\x1b[34m%s\x1b[0m", ...args);
 const red = (...args: any[]) => log("\x1b[31m%s\x1b[0m", ...args);
 const green = (...args: any[]) => log("\x1b[32m%s\x1b[0m", ...args);
 
-const db = initDatabase();
-const usersStorage = new UsersStorage(db);
-
 function sleepForMs(ms: number) {
   return new Promise((resolve) => {
     setTimeout(resolve, ms);
@@ -24,6 +21,8 @@ function sleepForMs(ms: number) {
 }
 
 async function renewAllPodcastFlows(): Promise<void> {
+  const dbClient = await initDatabase();
+  const usersStorage = new UsersStorage(dbClient);
   const spotifyApi = new SpotifyWebApi({
     clientId: process.env.CLIENT_ID,
     clientSecret: process.env.CLIENT_SECRET,
@@ -60,7 +59,11 @@ async function renewAllPodcastFlows(): Promise<void> {
     spotifyApi.setRefreshToken(body.refresh_token);
 
     // get all flows for this user
-    const controller = new PodcastFlowController(username, spotifyApi, db);
+    const controller = new PodcastFlowController(
+      username,
+      spotifyApi,
+      dbClient
+    );
     const flows = await controller.getAll();
 
     // renew each of the flows

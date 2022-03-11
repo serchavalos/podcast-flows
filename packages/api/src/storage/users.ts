@@ -1,4 +1,4 @@
-import { PromisedDatabase } from "../lib/promised-sqllite3";
+import { Client } from "pg";
 
 type UserRecord = {
   accessToken: string;
@@ -7,18 +7,7 @@ type UserRecord = {
 };
 
 export class UsersStorage {
-  constructor(private db: PromisedDatabase) {
-    db.serialize(() => {
-      db.run(
-        "CREATE TABLE IF NOT EXISTS users ( \
-          accessToken TEXT UNIQUE NOT NULL, \
-          refreshToken TEXT UNIQUE NOT NULL, \
-          username TEXT UNIQUE NOT NULL, \
-          createdOn DATETIME DEFAULT CURRENT_TIMESTAMP \
-          )"
-      );
-    });
-  }
+  constructor(private client: Client) {}
 
   async addNewUser(
     accessToken: string,
@@ -26,8 +15,8 @@ export class UsersStorage {
     username: string
   ): Promise<void> {
     try {
-      await this.db.asyncGet(
-        "INSERT INTO users (accessToken, refreshToken, username) VALUES (?, ?, ?)",
+      await this.client.query(
+        "INSERT INTO users (accessToken, refreshToken, username) VALUES ($1::text, $2::text, $3::text)",
         [accessToken, refreshToken, username]
       );
     } catch (err) {
@@ -38,20 +27,21 @@ export class UsersStorage {
     }
   }
 
-  getAllUsers(): Promise<UserRecord[]> {
-    return this.db.asyncAll(
+  async getAllUsers(): Promise<UserRecord[]> {
+    const result = await this.client.query<UserRecord>(
       "SELECT username, accessToken, refreshToken FROM users"
     );
+    return result.rows;
   }
 
-  updateTokens(
+  async updateTokens(
     username: string,
     accessToken: string,
     refreshToken: string
   ): Promise<void> {
-    return this.db.asyncRun(
-      `UPDATE users SET accessToken = "${accessToken}", refreshToken = "${refreshToken}" WHERE username = ?`,
-      username
+    await this.client.query(
+      `UPDATE users SET accessToken = "${accessToken}", refreshToken = "${refreshToken}" WHERE username = $1::text`,
+      [username]
     );
   }
 }

@@ -14,12 +14,12 @@ export async function setupPodcastFlowControllerMiddleware(
     return next();
   }
 
-  const db = initDatabase();
+  const dbClient = await initDatabase();
   const { username } = req.user;
   const accessToken = getAccessToken(req.headers.authorization);
   const api = new SpotifyWebApi();
   api.setAccessToken(accessToken);
 
-  res.locals.controller = new PodcastFlowController(username, api, db);
+  res.locals.controller = new PodcastFlowController(username, api, dbClient);
   next();
 }

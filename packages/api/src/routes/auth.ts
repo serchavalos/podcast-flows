@@ -9,9 +9,9 @@ type RegisterRequest = Request<
   { accessToken: string; refreshToken: string }
 >;
 
+let usersStorage: UsersStorage;
 const router = Router();
-const db = initDatabase();
-const usersStorage = new UsersStorage(db);
+initDatabase().then((dbClient) => (usersStorage = new UsersStorage(dbClient)));
 
 router.post("/register/", async (req: RegisterRequest, res: Response) => {
   const { accessToken, refreshToken } = req.body;
