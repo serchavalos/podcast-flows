@@ -11,7 +11,7 @@ export function createServer(): Express {
   app.use(morgan("tiny"));
 
   app.use((_: Request, res: Response, next: NextFunction) => {
-    res.setHeader("Access-Control-Allow-Origin", "http://localhost:8080");
+    res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Access-Control-Allow-Methods", "POST, GET, DELETE, OPTIONS");
     res.setHeader(
       "Access-Control-Allow-Headers",
