@@ -1,4 +1,4 @@
-import { Router, Request, Response, NextFunction } from "express";
+import { Router, Request, Response } from "express";
 import { PodcastFlowController } from "../lib/podcast-flows/controller";
 
 import { bearerMiddleware } from "../middlewares/bearer-token";
@@ -20,13 +20,6 @@ type PodcastFlowResponse = Response<{}, { controller: PodcastFlowController }>;
 const router = Router();
 router.use(bearerMiddleware);
 router.use(setupPodcastFlowControllerMiddleware);
-router.use((_: Request, res: Response, next: NextFunction) => {
-  res.setHeader("Access-Control-Allow-Origin", "http://localhost:8080");
-  res.setHeader("Access-Control-Allow-Methods", "POST, GET, DELETE, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type");
-  res.setHeader("Access-Control-Max-Age", 86400);
-  next();
-});
 
 router.options("/", (_: Request, res: Response) => {
   res.sendStatus(204);

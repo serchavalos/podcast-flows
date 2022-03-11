@@ -1,10 +1,10 @@
 const SpotifyWebApi = require("spotify-web-api-node");
 const { config } = require("dotenv");
-const { initDatabase } = require("../src/storage");
-const { UsersStorage } = require("../src/storage");
+const { initDatabase } = require("../server/storage");
+const { UsersStorage } = require("../server/storage");
 const {
   PodcastFlowController,
-} = require("../src/lib/podcast-flows/controller");
+} = require("../server/lib/podcast-flows/controller");
 
 config();
 
