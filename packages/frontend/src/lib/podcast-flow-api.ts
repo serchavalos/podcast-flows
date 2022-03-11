@@ -2,8 +2,16 @@ import type { PodcastFlow } from "@podcast-flows/api";
 
 export class PodcastFlowApi {
   private accessToken: string;
-  private baseURL = "http://localhost:8888";
-  private endpointPrefix = "/api/podcast-flows";
+  private baseURL;
+  private endpointPrefix;
+
+  constructor() {
+    const {
+      env: { API_URL },
+    } = process;
+    this.baseURL = API_URL;
+    this.endpointPrefix = "/api/podcast-flows";
+  }
 
   public setAccessToken(token: string): void {
     this.accessToken = token;
@@ -29,6 +37,19 @@ export class PodcastFlowApi {
       "POST",
       JSON.stringify(flow)
     );
+  }
+
+  public registerUser(
+    accessToken: string,
+    refreshToken: string
+  ): Promise<void> {
+    return fetch(`${this.baseURL}/auth/register/`, {
+      method: "POST",
+      headers: {
+        "Content-type": "application/json",
+      },
+      body: JSON.stringify({ accessToken, refreshToken }),
+    }).then(() => {});
   }
 
   private async sendRequest<T>(

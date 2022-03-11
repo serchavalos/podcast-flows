@@ -2,6 +2,7 @@
   import Button from "@smui/button";
   import { redirectToHomeForLoggedInUsers } from "../lib/auth-routing";
   import { logUserIn } from "../lib/auth-utils";
+  import { PodcastFlowApi } from "../lib/podcast-flow-api";
   import { exchangeToken } from "../lib/spotify-api-auth-flow-utils";
   import {
     SpotifyWebApiScope,
@@ -15,6 +16,7 @@
   const {
     env: { CLIENT_ID, REDIRECT_URI },
   } = process;
+  const flowApi = new PodcastFlowApi();
 
   function onLoginClick(ev: Event) {
     ev.preventDefault();
@@ -41,11 +43,15 @@
   const code = args.get("code");
 
   if (code) {
-    exchangeToken(code).then((data) => {
-      logUserIn(data);
-      // clear search query params in the url
-      redirectToHomeForLoggedInUsers();
-    });
+    exchangeToken(code)
+      .then((data) => {
+        logUserIn(data);
+        return flowApi.registerUser(data.access_token, data.refresh_token);
+      })
+      .then(() => {
+        // clear search query params in the url
+        redirectToHomeForLoggedInUsers();
+      });
   }
 </script>
 

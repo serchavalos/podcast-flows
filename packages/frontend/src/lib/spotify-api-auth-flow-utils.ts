@@ -56,6 +56,7 @@ export async function exchangeToken(code: string): Promise<ResponseToken> {
   const {
     env: { CLIENT_ID, REDIRECT_URI },
   } = process;
+  console.log(`DEBUG este si verdad? ${CLIENT_ID}`);
   const code_verifier = localStorage.getItem(LC_KEYS.CODE_VERIFIER);
 
   return fetch("https://accounts.spotify.com/api/token", {

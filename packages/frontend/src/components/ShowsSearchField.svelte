@@ -8,7 +8,10 @@
   import HelperText from "@smui/textfield/helper-text";
   import SpotifyWebApi from "spotify-web-api-js";
   import debounce from "lodash.debounce";
-  import { getSavedAccessToken } from "../lib/auth-utils";
+  import {
+    getSavedAccessToken,
+    handleUnauthorizeResponse,
+  } from "../lib/auth-utils";
   import type { Show } from "../lib/types";
 
   const spotifyApi = new SpotifyWebApi();

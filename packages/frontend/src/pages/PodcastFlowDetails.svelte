@@ -5,7 +5,10 @@
   import PodcastFlowDetailsShowRow from "../components/PodcastFlowDetailsShowRow.svelte";
   import DeletePodcastDialog from "../components/DeletePodcastDialog.svelte";
   import { redirectToLoginForAnonymousUsers } from "../lib/auth-routing";
-  import { getSavedAccessToken, logout } from "../lib/auth-utils";
+  import {
+    getSavedAccessToken,
+    handleUnauthorizeResponse,
+  } from "../lib/auth-utils";
   import { PodcastFlowApi } from "../lib/podcast-flow-api";
   import { navigate } from "svelte-routing";
 
@@ -32,9 +35,10 @@
     .then((response) => {
       shows = response.shows;
     })
-    .catch(() => {
-      logout();
-      redirectToLoginForAnonymousUsers();
+    .catch((err) => {
+      if (err.status === 401) {
+        return handleUnauthorizeResponse();
+      }
     });
 
   function openDeletePodcastDialog(ev: Event): void {

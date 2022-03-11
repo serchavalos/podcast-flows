@@ -1,4 +1,5 @@
 import SpotifyWebApi from "spotify-web-api-js";
+import { redirectToLoginForAnonymousUsers } from "./auth-routing";
 
 import type { ResponseToken } from "./spotify-api-auth-flow-utils";
 
@@ -60,4 +61,9 @@ export async function getSavedUser(): Promise<User> {
     localStorage.setItem(LC_KEYS.USER_DATA, JSON.stringify(user));
     return user;
   });
+}
+
+export function handleUnauthorizeResponse() {
+  logout();
+  redirectToLoginForAnonymousUsers();
 }

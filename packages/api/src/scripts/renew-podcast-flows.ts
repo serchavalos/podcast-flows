@@ -1,3 +1,4 @@
+// tslint:disable:no-var-requires
 const SpotifyWebApi = require("spotify-web-api-node");
 const { config } = require("dotenv");
 const { initDatabase } = require("../server/storage");
