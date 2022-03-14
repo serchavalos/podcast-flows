@@ -1,6 +1,5 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-cd packages/cli; npm run format; npm run lint
-cd ../api; npm run format; npm run lint
+cd packages/api; npm run format; npm run lint
 cd ../frontend; npm run check
