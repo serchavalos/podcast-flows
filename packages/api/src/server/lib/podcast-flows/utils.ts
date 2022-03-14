@@ -30,6 +30,6 @@ export function getDateLimitByInterval(
   interval: TimeInterval,
   inputDate: Date = new Date()
 ): Date {
-  const amount = interval === "daily" ? 2 : interval === "weekly" ? 8 : 31; // Gives an extra day to not be to precise
+  const amount = interval === "daily" ? 1 : interval === "weekly" ? 7 : 30;
   return subDays(inputDate, amount);
 }
