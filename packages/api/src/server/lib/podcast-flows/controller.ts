@@ -1,8 +1,7 @@
-import { isAfter } from "date-fns";
 import { Client } from "pg";
 import SpotifyWebApi from "spotify-web-api-node";
 
-import { buildFlowMetadata, getDateLimitByInterval } from "./utils";
+import { buildFlowMetadata, getDateLimitByInterval, isAfter } from "./utils";
 import { PodcastFlow, PodcastFlowsStorage, TimeInterval } from "../../storage/";
 import { SimplifiedSpotifyApi } from "./simplified-spotify-api";
 

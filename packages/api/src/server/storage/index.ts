@@ -1,5 +1,5 @@
 import { Client } from "pg";
-import { TIME_INTERVALS } from "./podcast-flows";
+import { TimeInterval } from "./podcast-flows";
 
 export async function initDatabase(): Promise<Client> {
   const client = new Client({
@@ -7,7 +7,9 @@ export async function initDatabase(): Promise<Client> {
   });
   await client.connect();
 
-  const timeIntervalCheck = TIME_INTERVALS.map((t) => `'${t}'`).join(", ");
+  const timeIntervalCheck = Object.values(TimeInterval)
+    .map((t) => `'${t}'`)
+    .join(", ");
   Promise.all([
     // TODO: Review for better ways to migrate a TS type to a DB schema
     client.query(
@@ -46,7 +48,6 @@ export async function initDatabase(): Promise<Client> {
 export { UsersStorage } from "./users";
 export {
   PodcastFlowsStorage,
-  TIME_INTERVALS,
   TimeInterval,
   PodcastFlow,
 } from "./podcast-flows";

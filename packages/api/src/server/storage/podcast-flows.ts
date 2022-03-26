@@ -1,8 +1,10 @@
 import { Client } from "pg";
 
-export const TIME_INTERVALS = ["daily", "weekly", "monthly"] as const;
-
-export type TimeInterval = typeof TIME_INTERVALS[number];
+export enum TimeInterval {
+  DAILY = "daily",
+  WEEKLY = "weekly",
+  MONTHLY = "monthly",
+}
 
 export type PodcastFlow = {
   id: string;

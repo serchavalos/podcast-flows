@@ -9,7 +9,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "build": "tsc",
     "dev": "ts-node-dev src/",
     "start": "node dist/index.js",
@@ -19,7 +19,7 @@
   },
   "devDependencies": {
     "@types/express": "^4.17.13",
-    "@types/jest": "^27.4.0",
+    "@types/jest": "^27.4.1",
     "@types/passport": "^1.0.7",
     "@types/passport-http-bearer": "^1.0.37",
     "@types/passport-spotify": "^2.0.1",
@@ -38,7 +38,6 @@
   },
   "dependencies": {
     "@types/pg": "^8.6.5",
-    "date-fns": "^2.28.0",
     "dotenv": "^16.0.0",
     "express": "^4.17.2",
     "morgan": "^1.10.0",

@@ -2,7 +2,6 @@ import { config } from "dotenv";
 config();
 
 import { createServer } from "./server";
-export { TIME_INTERVALS } from "./server/storage";
 export type { PodcastFlow, TimeInterval } from "./server/storage";
 
 const port = process.env.PORT || 8888;

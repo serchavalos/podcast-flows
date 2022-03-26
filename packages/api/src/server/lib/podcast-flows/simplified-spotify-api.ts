@@ -1,4 +1,4 @@
-import { isAfter } from "date-fns";
+import { isAfter } from "./utils";
 import SpotifyWebApi from "spotify-web-api-node";
 
 export class SimplifiedSpotifyApi {

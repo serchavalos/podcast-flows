@@ -1,5 +1,3 @@
-import subDays from "date-fns/subDays/index.js";
-
 import { TimeInterval } from "../../storage";
 
 type FlowMetadata = {
@@ -30,6 +28,22 @@ export function getDateLimitByInterval(
   interval: TimeInterval,
   inputDate: Date = new Date()
 ): Date {
-  const amount = interval === "daily" ? 1 : interval === "weekly" ? 7 : 30;
-  return subDays(inputDate, amount);
+  const normalizedDate = new Date(inputDate.getTime());
+  normalizedDate.setHours(0, 0, 0, 0);
+
+  if (interval === TimeInterval.DAILY) {
+    normalizedDate.setDate(inputDate.getDate() - 1);
+  } else if (interval === TimeInterval.WEEKLY) {
+    const day = normalizedDate.getDay();
+    const newDate = normalizedDate.getDate() - day;
+    normalizedDate.setDate(newDate);
+  } else if (interval === TimeInterval.MONTHLY) {
+    normalizedDate.setMonth(inputDate.getMonth() - 1);
+    normalizedDate.setDate(1);
+  }
+  return normalizedDate;
+}
+
+export function isAfter(date1: Date, date2: Date): boolean {
+  return date1.getTime() > date2.getTime();
 }
